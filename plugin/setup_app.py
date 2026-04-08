@@ -10,6 +10,8 @@ import sys
 
 from setuptools import setup
 
+VERSION = "0.1.0"
+
 # Add repo root so engine/ and plugin/ are importable
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if REPO_ROOT not in sys.path:
@@ -60,8 +62,8 @@ OPTIONS = {
         "CFBundleName": "scheMAGIC",
         "CFBundleDisplayName": "scheMAGIC",
         "CFBundleIdentifier": "com.schemagic.app",
-        "CFBundleVersion": "0.1.0",
-        "CFBundleShortVersionString": "0.1.0",
+        "CFBundleVersion": VERSION,
+        "CFBundleShortVersionString": VERSION,
         "LSUIElement": True,
         "NSHighResolutionCapable": True,
     },
