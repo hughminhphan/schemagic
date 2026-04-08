@@ -1,3 +1,5 @@
+import InstallCommand from "./InstallCommand";
+
 export default function Hero() {
   return (
     <section className="border-b border-border">
@@ -13,13 +15,16 @@ export default function Hero() {
           production-ready component.
         </p>
         <div className="mt-[48px]">
-          <a
-            href="https://github.com/hughminhphan/schemagic-webapp/releases/download/v0.1.0/scheMAGIC.dmg"
-            download
-            className="inline-flex items-center justify-center bg-accent h-[48px] w-[240px] text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-          >
-            Download for KiCad 8
-          </a>
+          <InstallCommand />
+          <p className="mt-[24px] font-mono text-xs text-text-secondary">
+            or{" "}
+            <a
+              href="https://github.com/hughminhphan/schemagic-webapp/releases/download/v0.1.0/scheMAGIC.dmg"
+              className="underline hover:text-text-primary transition-colors"
+            >
+              download DMG directly
+            </a>
+          </p>
         </div>
 
         {/* Pipeline visual - each box is exactly 6x2 grid cells (288x96px) */}

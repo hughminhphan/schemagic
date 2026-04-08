@@ -1,3 +1,5 @@
+import InstallCommand from "./InstallCommand";
+
 export default function DownloadCTA() {
   return (
     <section id="download">
@@ -10,13 +12,16 @@ export default function DownloadCTA() {
             Stop drawing symbols by hand.
           </p>
           <div className="mt-[48px]">
-            <a
-              href="https://github.com/hughminhphan/schemagic-webapp/releases/download/v0.1.0/scheMAGIC.dmg"
-              download
-              className="inline-flex items-center justify-center bg-accent h-[48px] w-[240px] text-sm font-medium text-white hover:bg-accent-hover transition-colors"
-            >
-              Download for KiCad 8
-            </a>
+            <InstallCommand />
+            <p className="mt-[24px] font-mono text-xs text-text-secondary">
+              or{" "}
+              <a
+                href="https://github.com/hughminhphan/schemagic-webapp/releases/download/v0.1.0/scheMAGIC.dmg"
+                className="underline hover:text-text-primary transition-colors"
+              >
+                download DMG directly
+              </a>
+            </p>
           </div>
           <p className="mt-[48px] font-mono text-xs text-text-secondary">
             Requires KiCad 8.0+
