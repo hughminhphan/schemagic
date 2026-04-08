@@ -34,25 +34,25 @@ if [ "$FREE_GB" -lt 1 ]; then
 fi
 
 # Temp directory with cleanup trap
-TMPDIR=$(mktemp -d)
+WORK_DIR=$(mktemp -d)
 MOUNT_POINT=""
 cleanup() {
   if [ -n "$MOUNT_POINT" ]; then
     hdiutil detach "$MOUNT_POINT" -quiet 2>/dev/null || true
   fi
-  rm -rf "$TMPDIR"
+  rm -rf "$WORK_DIR"
 }
 trap cleanup EXIT
 
 # Download
 echo -e "${DIM}Downloading scheMAGIC.dmg...${RESET}"
-curl -fL --progress-bar -o "$TMPDIR/scheMAGIC.dmg" "$DMG_URL"
+curl -fL --progress-bar -o "$WORK_DIR/scheMAGIC.dmg" "$DMG_URL"
 echo ""
 
 # Mount
 echo -e "${DIM}Installing...${RESET}"
-MOUNT_OUTPUT=$(hdiutil attach -nobrowse -quiet "$TMPDIR/scheMAGIC.dmg" 2>&1)
-MOUNT_POINT=$(echo "$MOUNT_OUTPUT" | tail -1 | awk -F'\t' '{print $NF}' | xargs)
+MOUNT_OUTPUT=$(hdiutil attach -nobrowse "$WORK_DIR/scheMAGIC.dmg" 2>&1)
+MOUNT_POINT=$(echo "$MOUNT_OUTPUT" | grep -o '/Volumes/.*' | head -1)
 
 if [ -z "$MOUNT_POINT" ] || [ ! -d "$MOUNT_POINT" ]; then
   echo "Error: Failed to mount DMG."
