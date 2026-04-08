@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+*.egg
+
+# Cache
+cache/
+
+# macOS
+.DS_Store
+*.dmg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Node (web/)
+web/node_modules/
+web/.next/
+web/.vercel/
+
+# Env
+.env
+.env.local
+
+# Test artifacts
+/tmp/
+
+# Ralph
+.ralph/logs/
+.ralph/live.log
+.ralph/

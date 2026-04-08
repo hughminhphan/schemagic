@@ -1,0 +1,3925 @@
+[
+  {
+    "pn": "TPS54302DDCR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54302",
+    "expected_pins": 6,
+    "pins": [
+      {
+        "number": "1",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "SW",
+        "type": "power_out"
+      },
+      {
+        "number": "3",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "BOOT",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "GND": "power_in",
+      "SW": "power_out",
+      "VIN": "power_in",
+      "FB": "input",
+      "EN": "input",
+      "BOOT": "passive"
+    }
+  },
+  {
+    "pn": "TPS54360DDAR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54360DDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "RT/CLK",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "COMP",
+        "type": "passive"
+      },
+      {
+        "number": "7",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "SW",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GNDPAD",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "input",
+      "VIN": "power_in",
+      "EN": "input",
+      "RT/CLK": "input",
+      "FB": "input",
+      "COMP": "passive",
+      "GND": "power_in",
+      "SW": "output",
+      "GNDPAD": "power_in"
+    }
+  },
+  {
+    "pn": "TPS54233DR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54233",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "SS",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "COMP",
+        "type": "passive"
+      },
+      {
+        "number": "7",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "PH",
+        "type": "output"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "input",
+      "VIN": "power_in",
+      "EN": "input",
+      "SS": "input",
+      "FB": "input",
+      "COMP": "passive",
+      "GND": "power_in",
+      "PH": "output"
+    }
+  },
+  {
+    "pn": "TPS563202SDDCR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS563202S",
+    "expected_pins": 6,
+    "pins": [
+      {
+        "number": "1",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "SW",
+        "type": "output"
+      },
+      {
+        "number": "3",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "BST",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "FB",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "VIN": "power_in",
+      "SW": "output",
+      "GND": "power_in",
+      "BST": "passive",
+      "EN": "input",
+      "FB": "input"
+    }
+  },
+  {
+    "pn": "TPS62056DGSR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS62056DGS",
+    "expected_pins": 10,
+    "pins": [
+      {
+        "number": "1",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "10",
+        "name": "PGND",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "LBO",
+        "type": "open_collector"
+      },
+      {
+        "number": "3",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "PG",
+        "type": "open_collector"
+      },
+      {
+        "number": "5",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "LBI",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "SYNC",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "9",
+        "name": "SW",
+        "type": "power_out"
+      }
+    ],
+    "key_pins": {
+      "VIN": "power_in",
+      "PGND": "power_in",
+      "LBO": "open_collector",
+      "GND": "power_in",
+      "PG": "open_collector",
+      "FB": "input",
+      "LBI": "input",
+      "SYNC": "input",
+      "EN": "input",
+      "SW": "power_out"
+    }
+  },
+  {
+    "pn": "TPS5430DDAR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS5430DDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "3",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "4",
+        "name": "VSENSE",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "7",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "PH",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GNDPAD",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "input",
+      "NC": "no_connect",
+      "VSENSE": "input",
+      "EN": "input",
+      "GND": "power_in",
+      "VIN": "power_in",
+      "PH": "output",
+      "GNDPAD": "power_in"
+    }
+  },
+  {
+    "pn": "TPS54336ADDAR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54336ADDA",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "output"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "PH",
+        "type": "output"
+      },
+      {
+        "number": "4",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "VSENSE",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "COMP",
+        "type": "output"
+      },
+      {
+        "number": "7",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "SS",
+        "type": "output"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "output",
+      "VIN": "power_in",
+      "PH": "output",
+      "GND": "power_in",
+      "VSENSE": "input",
+      "COMP": "output",
+      "EN": "input",
+      "SS": "output"
+    }
+  },
+  {
+    "pn": "LMR33640ADDAR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "LMR33640ADDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "PG",
+        "type": "open_collector"
+      },
+      {
+        "number": "5",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "VCC",
+        "type": "power_out"
+      },
+      {
+        "number": "7",
+        "name": "BOOT",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "SW",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "GND": "passive",
+      "VIN": "power_in",
+      "EN": "input",
+      "PG": "open_collector",
+      "FB": "input",
+      "VCC": "power_out",
+      "BOOT": "input",
+      "SW": "output"
+    }
+  },
+  {
+    "pn": "TPS62933PDRLR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS62933P",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "RT",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "SW",
+        "type": "output"
+      },
+      {
+        "number": "6",
+        "name": "BST",
+        "type": "passive"
+      },
+      {
+        "number": "7",
+        "name": "PG",
+        "type": "open_collector"
+      },
+      {
+        "number": "8",
+        "name": "FB",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "RT": "passive",
+      "EN": "input",
+      "VIN": "power_in",
+      "GND": "power_in",
+      "SW": "output",
+      "BST": "passive",
+      "PG": "open_collector",
+      "FB": "input"
+    }
+  },
+  {
+    "pn": "LM2596S-12",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "LM2596S-12",
+    "expected_pins": 5,
+    "pins": [
+      {
+        "number": "1",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "OUT",
+        "type": "output"
+      },
+      {
+        "number": "3",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "~{ON}/OFF",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "VIN": "power_in",
+      "OUT": "output",
+      "GND": "power_in",
+      "FB": "input",
+      "~{ON}/OFF": "input"
+    }
+  },
+  {
+    "pn": "TPS54260DGQR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54260DGQ",
+    "expected_pins": 11,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "output"
+      },
+      {
+        "number": "10",
+        "name": "PH",
+        "type": "output"
+      },
+      {
+        "number": "11",
+        "name": "GND",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "SS/TR",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "RT/CLK",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "PWRGD",
+        "type": "open_collector"
+      },
+      {
+        "number": "7",
+        "name": "VSENSE",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "COMP",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "output",
+      "PH": "output",
+      "GND": "power_in",
+      "VIN": "power_in",
+      "EN": "input",
+      "SS/TR": "input",
+      "RT/CLK": "input",
+      "PWRGD": "open_collector",
+      "VSENSE": "input",
+      "COMP": "output"
+    }
+  },
+  {
+    "pn": "TPS54061DRBR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54061DRB",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "RT/CLK",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "VSENSE",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "COMP",
+        "type": "passive"
+      },
+      {
+        "number": "7",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "PH",
+        "type": "power_out"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "passive",
+      "VIN": "power_in",
+      "EN": "input",
+      "RT/CLK": "passive",
+      "VSENSE": "input",
+      "COMP": "passive",
+      "GND": "passive",
+      "PH": "power_out"
+    }
+  },
+  {
+    "pn": "TPS54560BDDAR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS54560BDDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "BOOT",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "RT/CLK",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "COMP",
+        "type": "output"
+      },
+      {
+        "number": "7",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "SW",
+        "type": "power_out"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "BOOT": "passive",
+      "VIN": "power_in",
+      "EN": "input",
+      "RT/CLK": "passive",
+      "FB": "input",
+      "COMP": "output",
+      "GND": "passive",
+      "SW": "power_out"
+    }
+  },
+  {
+    "pn": "TPS62130RGTR",
+    "family": "buck",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Switching",
+    "kicad_sym": "TPS62130",
+    "expected_pins": 16,
+    "pins": [
+      {
+        "number": "1",
+        "name": "SW",
+        "type": "output"
+      },
+      {
+        "number": "10",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "11",
+        "name": "VIN",
+        "type": "passive"
+      },
+      {
+        "number": "12",
+        "name": "VIN",
+        "type": "passive"
+      },
+      {
+        "number": "13",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "14",
+        "name": "VOS",
+        "type": "input"
+      },
+      {
+        "number": "15",
+        "name": "GND",
+        "type": "passive"
+      },
+      {
+        "number": "16",
+        "name": "GND",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "SW",
+        "type": "passive"
+      },
+      {
+        "number": "3",
+        "name": "SW",
+        "type": "passive"
+      },
+      {
+        "number": "4",
+        "name": "PG",
+        "type": "open_collector"
+      },
+      {
+        "number": "5",
+        "name": "FB",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "7",
+        "name": "FSW",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "DEF",
+        "type": "input"
+      },
+      {
+        "number": "9",
+        "name": "SS/TR",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "SW": "passive",
+      "VIN": "passive",
+      "EN": "input",
+      "VOS": "input",
+      "GND": "power_in",
+      "PG": "open_collector",
+      "FB": "input",
+      "FSW": "input",
+      "DEF": "input",
+      "SS/TR": "input"
+    }
+  },
+  {
+    "pn": "LP5907MFX-1.2",
+    "family": "ldo",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Regulator_Linear",
+    "kicad_sym": "LP5907MFX-1.2",
+    "expected_pins": 5,
+    "pins": [
+      {
+        "number": "1",
+        "name": "IN",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "5",
+        "name": "OUT",
+        "type": "power_out"
+      }
+    ],
+    "key_pins": {
+      "IN": "power_in",
+      "GND": "power_in",
+      "EN": "input",
+      "NC": "no_connect",
+      "OUT": "power_out"
+    }
+  },
+  {
+    "pn": "LT1761ES5-5",
+    "family": "ldo",
+    "tier": 1,
+    "manufacturer": "ADI",
+    "kicad_lib": "Regulator_Linear",
+    "kicad_sym": "LT1761-5",
+    "expected_pins": 5,
+    "pins": [
+      {
+        "number": "1",
+        "name": "VIN",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "~{SHDN}",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "BYP",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "VOUT",
+        "type": "power_out"
+      }
+    ],
+    "key_pins": {
+      "VIN": "power_in",
+      "GND": "power_in",
+      "~{SHDN}": "input",
+      "BYP": "passive",
+      "VOUT": "power_out"
+    }
+  },
+  {
+    "pn": "LM358DR",
+    "family": "op_amp",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Amplifier_Operational",
+    "kicad_sym": "LM358",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "~",
+        "type": "output"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "+",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "+",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "-",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "~",
+        "type": "output"
+      },
+      {
+        "number": "4",
+        "name": "V-",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "V+",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "~": "output",
+      "-": "input",
+      "+": "input",
+      "V-": "power_in",
+      "V+": "power_in"
+    }
+  },
+  {
+    "pn": "LM324DR",
+    "family": "op_amp",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Amplifier_Operational",
+    "kicad_sym": "LM324",
+    "expected_pins": 20,
+    "pins": [
+      {
+        "number": "3",
+        "name": "1IN\u2013",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "1IN+",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "1OUT",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "2IN\u2013",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "2IN+",
+        "type": "input"
+      },
+      {
+        "number": "10",
+        "name": "2OUT",
+        "type": "output"
+      },
+      {
+        "number": "13",
+        "name": "3IN\u2013",
+        "type": "input"
+      },
+      {
+        "number": "14",
+        "name": "3IN+",
+        "type": "input"
+      },
+      {
+        "number": "12",
+        "name": "3OUT",
+        "type": "output"
+      },
+      {
+        "number": "19",
+        "name": "4IN\u2013",
+        "type": "input"
+      },
+      {
+        "number": "18",
+        "name": "4IN+",
+        "type": "input"
+      },
+      {
+        "number": "20",
+        "name": "4OUT",
+        "type": "output"
+      },
+      {
+        "number": "1",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "5",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "7",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "11",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "15",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "17",
+        "name": "NC",
+        "type": "no_connect"
+      },
+      {
+        "number": "6",
+        "name": "VCC+",
+        "type": "passive"
+      },
+      {
+        "number": "16",
+        "name": "VCC\u2013",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "1IN\u2013": "input",
+      "1IN+": "input",
+      "1OUT": "output",
+      "2IN\u2013": "input",
+      "2IN+": "input",
+      "2OUT": "output",
+      "3IN\u2013": "input",
+      "3IN+": "input",
+      "3OUT": "output",
+      "4IN\u2013": "input",
+      "4IN+": "input",
+      "4OUT": "output",
+      "NC": "no_connect",
+      "VCC+": "passive",
+      "VCC\u2013": "power_in"
+    },
+    "notes": "LCCC-20 numbering (engine extracts first available package column)"
+  },
+  {
+    "pn": "OPA2325AIDR",
+    "family": "op_amp",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Amplifier_Operational",
+    "kicad_sym": "OPA2325",
+    "expected_pins": 14,
+    "pins": [
+      {
+        "number": "4",
+        "name": "\u2013IN",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "+IN",
+        "type": "input"
+      },
+      {
+        "number": "1",
+        "name": "OUT",
+        "type": "output"
+      },
+      {
+        "number": "2",
+        "name": "V\u2013",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "V+",
+        "type": "passive"
+      },
+      {
+        "number": "6",
+        "name": "\u2013INB",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "OUTB",
+        "type": "output"
+      },
+      {
+        "number": "8",
+        "name": "V+",
+        "type": "passive"
+      },
+      {
+        "number": "9",
+        "name": "\u2013INC",
+        "type": "input"
+      },
+      {
+        "number": "10",
+        "name": "+INC",
+        "type": "input"
+      },
+      {
+        "number": "13",
+        "name": "\u2013IND",
+        "type": "input"
+      },
+      {
+        "number": "12",
+        "name": "+IND",
+        "type": "input"
+      },
+      {
+        "number": "14",
+        "name": "OUTD",
+        "type": "output"
+      },
+      {
+        "number": "11",
+        "name": "V\u2013",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "\u2013IN": "input",
+      "+IN": "input",
+      "OUT": "output",
+      "V\u2013": "passive",
+      "V+": "passive",
+      "\u2013INB": "input",
+      "OUTB": "output",
+      "\u2013INC": "input",
+      "+INC": "input",
+      "\u2013IND": "input",
+      "+IND": "input",
+      "OUTD": "output"
+    },
+    "notes": "Engine extracts quad OPA4325 (14 pins) - multi-variant table"
+  },
+  {
+    "pn": "LM393DR",
+    "family": "comparator",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Comparator",
+    "kicad_sym": "LM393",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "~",
+        "type": "open_collector"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "+",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "+",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "-",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "~",
+        "type": "open_collector"
+      },
+      {
+        "number": "4",
+        "name": "V-",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "V+",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "~": "open_collector",
+      "-": "input",
+      "+": "input",
+      "V-": "power_in",
+      "V+": "power_in"
+    }
+  },
+  {
+    "pn": "ADS1115IDGSR",
+    "family": "adc",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Analog_ADC",
+    "kicad_sym": "ADS1115IDGS",
+    "expected_pins": 10,
+    "pins": [
+      {
+        "number": "1",
+        "name": "ADDR",
+        "type": "input"
+      },
+      {
+        "number": "10",
+        "name": "SCL",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "ALERT/RDY",
+        "type": "output"
+      },
+      {
+        "number": "3",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "AIN0",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "AIN1",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "AIN2",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "AIN3",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "VDD",
+        "type": "power_in"
+      },
+      {
+        "number": "9",
+        "name": "SDA",
+        "type": "bidirectional"
+      }
+    ],
+    "key_pins": {
+      "ADDR": "input",
+      "SCL": "input",
+      "ALERT/RDY": "output",
+      "GND": "power_in",
+      "AIN0": "input",
+      "AIN1": "input",
+      "AIN2": "input",
+      "AIN3": "input",
+      "VDD": "power_in",
+      "SDA": "bidirectional"
+    }
+  },
+  {
+    "pn": "MCP2515-ISN",
+    "family": "can_ctrl",
+    "tier": 1,
+    "manufacturer": "Microchip",
+    "kicad_lib": "Interface_CAN_LIN",
+    "kicad_sym": "MCP2515-xSO",
+    "expected_pins": 18,
+    "pins": [
+      {
+        "number": "1",
+        "name": "TXCAN",
+        "type": "output"
+      },
+      {
+        "number": "10",
+        "name": "~{RX1BF}",
+        "type": "output"
+      },
+      {
+        "number": "11",
+        "name": "~{RX0BF}",
+        "type": "output"
+      },
+      {
+        "number": "12",
+        "name": "~{INT}",
+        "type": "output"
+      },
+      {
+        "number": "13",
+        "name": "SCK",
+        "type": "input"
+      },
+      {
+        "number": "14",
+        "name": "SI",
+        "type": "input"
+      },
+      {
+        "number": "15",
+        "name": "SO",
+        "type": "output"
+      },
+      {
+        "number": "16",
+        "name": "~{CS}",
+        "type": "input"
+      },
+      {
+        "number": "17",
+        "name": "~{RESET}",
+        "type": "input"
+      },
+      {
+        "number": "18",
+        "name": "VDD",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "RXCAN",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "CLKOUT/SOF",
+        "type": "output"
+      },
+      {
+        "number": "4",
+        "name": "~{TX0RTS}",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "~{TX1RTS}",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "~{TX2RTS}",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "OSC2",
+        "type": "output"
+      },
+      {
+        "number": "8",
+        "name": "OSC1",
+        "type": "input"
+      },
+      {
+        "number": "9",
+        "name": "VSS",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "TXCAN": "output",
+      "~{RX1BF}": "output",
+      "~{RX0BF}": "output",
+      "~{INT}": "output",
+      "SCK": "input",
+      "SI": "input",
+      "SO": "output",
+      "~{CS}": "input",
+      "~{RESET}": "input",
+      "VDD": "power_in",
+      "RXCAN": "input",
+      "CLKOUT/SOF": "output",
+      "~{TX0RTS}": "input",
+      "~{TX1RTS}": "input",
+      "~{TX2RTS}": "input",
+      "OSC2": "output",
+      "OSC1": "input",
+      "VSS": "power_in"
+    }
+  },
+  {
+    "pn": "MAX485EESA",
+    "family": "rs485",
+    "tier": 1,
+    "manufacturer": "Maxim",
+    "kicad_lib": "Interface_UART",
+    "kicad_sym": "MAX485E",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "RO",
+        "type": "output"
+      },
+      {
+        "number": "2",
+        "name": "~{RE}",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "DE",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "DI",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "A",
+        "type": "bidirectional"
+      },
+      {
+        "number": "7",
+        "name": "B",
+        "type": "bidirectional"
+      },
+      {
+        "number": "8",
+        "name": "VCC",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "RO": "output",
+      "~{RE}": "input",
+      "DE": "input",
+      "DI": "input",
+      "GND": "power_in",
+      "A": "bidirectional",
+      "B": "bidirectional",
+      "VCC": "power_in"
+    }
+  },
+  {
+    "pn": "CH340G",
+    "family": "usb_uart",
+    "tier": 1,
+    "manufacturer": "WCH",
+    "kicad_lib": "Interface_USB",
+    "kicad_sym": "CH340G",
+    "expected_pins": 16,
+    "pins": [
+      {
+        "number": "1",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "10",
+        "name": "~{DSR}",
+        "type": "input"
+      },
+      {
+        "number": "11",
+        "name": "~{RI}",
+        "type": "input"
+      },
+      {
+        "number": "12",
+        "name": "~{DCD}",
+        "type": "input"
+      },
+      {
+        "number": "13",
+        "name": "~{DTR}",
+        "type": "output"
+      },
+      {
+        "number": "14",
+        "name": "~{RTS}",
+        "type": "output"
+      },
+      {
+        "number": "15",
+        "name": "R232",
+        "type": "input"
+      },
+      {
+        "number": "16",
+        "name": "VCC",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "TXD",
+        "type": "output"
+      },
+      {
+        "number": "3",
+        "name": "RXD",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "V3",
+        "type": "power_out"
+      },
+      {
+        "number": "5",
+        "name": "UD+",
+        "type": "bidirectional"
+      },
+      {
+        "number": "6",
+        "name": "UD-",
+        "type": "bidirectional"
+      },
+      {
+        "number": "7",
+        "name": "XI",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "XO",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "~{CTS}",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "GND": "power_in",
+      "~{DSR}": "input",
+      "~{RI}": "input",
+      "~{DCD}": "input",
+      "~{DTR}": "output",
+      "~{RTS}": "output",
+      "R232": "input",
+      "VCC": "power_in",
+      "TXD": "output",
+      "RXD": "input",
+      "V3": "power_out",
+      "UD+": "bidirectional",
+      "UD-": "bidirectional",
+      "XI": "input",
+      "XO": "output",
+      "~{CTS}": "input"
+    }
+  },
+  {
+    "pn": "DRV8871DDAR",
+    "family": "motor_driver",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Driver_Motor",
+    "kicad_sym": "DRV8871DDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "IN2",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "IN1",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "ILIM",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "VM",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "OUT1",
+        "type": "output"
+      },
+      {
+        "number": "7",
+        "name": "GND",
+        "type": "passive"
+      },
+      {
+        "number": "8",
+        "name": "OUT2",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "GND": "passive",
+      "IN2": "input",
+      "IN1": "input",
+      "ILIM": "passive",
+      "VM": "power_in",
+      "OUT1": "output",
+      "OUT2": "output"
+    }
+  },
+  {
+    "pn": "DRV8870DDAR",
+    "family": "motor_driver",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Driver_Motor",
+    "kicad_sym": "DRV8870DDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "IN2",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "IN1",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "VREF",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "VM",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "OUT1",
+        "type": "output"
+      },
+      {
+        "number": "7",
+        "name": "ISEN",
+        "type": "passive"
+      },
+      {
+        "number": "8",
+        "name": "OUT2",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "GND": "passive",
+      "IN2": "input",
+      "IN1": "input",
+      "VREF": "input",
+      "VM": "power_in",
+      "OUT1": "output",
+      "ISEN": "passive",
+      "OUT2": "output"
+    }
+  },
+  {
+    "pn": "DRV8872DDAR",
+    "family": "motor_driver",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Driver_Motor",
+    "kicad_sym": "DRV8872DDA",
+    "expected_pins": 9,
+    "pins": [
+      {
+        "number": "1",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "IN2",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "IN1",
+        "type": "input"
+      },
+      {
+        "number": "4",
+        "name": "nFAULT",
+        "type": "open_collector"
+      },
+      {
+        "number": "5",
+        "name": "VM",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "OUT1",
+        "type": "output"
+      },
+      {
+        "number": "7",
+        "name": "ISEN",
+        "type": "passive"
+      },
+      {
+        "number": "8",
+        "name": "OUT2",
+        "type": "output"
+      },
+      {
+        "number": "9",
+        "name": "GND",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "GND": "passive",
+      "IN2": "input",
+      "IN1": "input",
+      "nFAULT": "open_collector",
+      "VM": "power_in",
+      "OUT1": "output",
+      "ISEN": "passive",
+      "OUT2": "output"
+    }
+  },
+  {
+    "pn": "INA219AIDR",
+    "family": "sensor",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Sensor_Energy",
+    "kicad_sym": "INA219AxD",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "A1",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "A0",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "SDA",
+        "type": "bidirectional"
+      },
+      {
+        "number": "4",
+        "name": "SCL",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "VS",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "7",
+        "name": "IN-",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "IN+",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "A1": "input",
+      "A0": "input",
+      "SDA": "bidirectional",
+      "SCL": "input",
+      "VS": "power_in",
+      "GND": "power_in",
+      "IN-": "input",
+      "IN+": "input"
+    }
+  },
+  {
+    "pn": "INA226AIDGSR",
+    "family": "sensor",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Sensor_Energy",
+    "kicad_sym": "INA226",
+    "expected_pins": 10,
+    "pins": [
+      {
+        "number": "1",
+        "name": "A1",
+        "type": "input"
+      },
+      {
+        "number": "10",
+        "name": "Vin+",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "A0",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "~{Alert}",
+        "type": "open_collector"
+      },
+      {
+        "number": "4",
+        "name": "SDA",
+        "type": "bidirectional"
+      },
+      {
+        "number": "5",
+        "name": "SCL",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "VS",
+        "type": "power_in"
+      },
+      {
+        "number": "7",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "8",
+        "name": "Vbus",
+        "type": "input"
+      },
+      {
+        "number": "9",
+        "name": "Vin-",
+        "type": "input"
+      }
+    ],
+    "key_pins": {
+      "A1": "input",
+      "Vin+": "input",
+      "A0": "input",
+      "~{Alert}": "open_collector",
+      "SDA": "bidirectional",
+      "SCL": "input",
+      "VS": "power_in",
+      "GND": "power_in",
+      "Vbus": "input",
+      "Vin-": "input"
+    }
+  },
+  {
+    "pn": "LM35DZ",
+    "family": "temp_sensor",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Sensor_Temperature",
+    "kicad_sym": "LM35-LP",
+    "expected_pins": 3,
+    "pins": [
+      {
+        "number": "1",
+        "name": "+V_{S}",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "V_{OUT}",
+        "type": "output"
+      },
+      {
+        "number": "3",
+        "name": "GND",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "+V_{S}": "power_in",
+      "V_{OUT}": "output",
+      "GND": "power_in"
+    }
+  },
+  {
+    "pn": "ACS712ELCTR-05B-T",
+    "family": "curr_sensor",
+    "tier": 1,
+    "manufacturer": "Allegro",
+    "kicad_lib": "Sensor_Current",
+    "kicad_sym": "ACS712xLCTR-05B",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "IP+",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "IP+",
+        "type": "passive"
+      },
+      {
+        "number": "3",
+        "name": "IP-",
+        "type": "passive"
+      },
+      {
+        "number": "4",
+        "name": "IP-",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "FILTER",
+        "type": "passive"
+      },
+      {
+        "number": "7",
+        "name": "VIOUT",
+        "type": "output"
+      },
+      {
+        "number": "8",
+        "name": "VCC",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "IP+": "passive",
+      "IP-": "passive",
+      "GND": "power_in",
+      "FILTER": "passive",
+      "VIOUT": "output",
+      "VCC": "power_in"
+    }
+  },
+  {
+    "pn": "IS31FL3218-GR",
+    "family": "led_driver",
+    "tier": 1,
+    "manufacturer": "ISSI",
+    "kicad_lib": "Driver_LED",
+    "kicad_sym": "IS31FL3218-GR",
+    "expected_pins": 24,
+    "pins": [
+      {
+        "number": "1",
+        "name": "OUT18",
+        "type": "open_collector"
+      },
+      {
+        "number": "10",
+        "name": "OUT4",
+        "type": "open_collector"
+      },
+      {
+        "number": "11",
+        "name": "OUT5",
+        "type": "open_collector"
+      },
+      {
+        "number": "12",
+        "name": "OUT6",
+        "type": "open_collector"
+      },
+      {
+        "number": "13",
+        "name": "OUT7",
+        "type": "open_collector"
+      },
+      {
+        "number": "14",
+        "name": "OUT8",
+        "type": "open_collector"
+      },
+      {
+        "number": "15",
+        "name": "OUT9",
+        "type": "open_collector"
+      },
+      {
+        "number": "16",
+        "name": "OUT10",
+        "type": "open_collector"
+      },
+      {
+        "number": "17",
+        "name": "OUT11",
+        "type": "open_collector"
+      },
+      {
+        "number": "18",
+        "name": "OUT12",
+        "type": "open_collector"
+      },
+      {
+        "number": "19",
+        "name": "OUT13",
+        "type": "open_collector"
+      },
+      {
+        "number": "2",
+        "name": "R_EXT",
+        "type": "passive"
+      },
+      {
+        "number": "20",
+        "name": "OUT14",
+        "type": "open_collector"
+      },
+      {
+        "number": "21",
+        "name": "OUT15",
+        "type": "open_collector"
+      },
+      {
+        "number": "22",
+        "name": "OUT16",
+        "type": "open_collector"
+      },
+      {
+        "number": "23",
+        "name": "OUT17",
+        "type": "open_collector"
+      },
+      {
+        "number": "24",
+        "name": "~{SDB}",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "VCC",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "SDA",
+        "type": "bidirectional"
+      },
+      {
+        "number": "6",
+        "name": "SCL",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "OUT1",
+        "type": "open_collector"
+      },
+      {
+        "number": "8",
+        "name": "OUT2",
+        "type": "open_collector"
+      },
+      {
+        "number": "9",
+        "name": "OUT3",
+        "type": "open_collector"
+      }
+    ],
+    "key_pins": {
+      "OUT18": "open_collector",
+      "OUT4": "open_collector",
+      "OUT5": "open_collector",
+      "OUT6": "open_collector",
+      "OUT7": "open_collector",
+      "OUT8": "open_collector",
+      "OUT9": "open_collector",
+      "OUT10": "open_collector",
+      "OUT11": "open_collector",
+      "OUT12": "open_collector",
+      "OUT13": "open_collector",
+      "R_EXT": "passive",
+      "OUT14": "open_collector",
+      "OUT15": "open_collector",
+      "OUT16": "open_collector",
+      "OUT17": "open_collector",
+      "~{SDB}": "input",
+      "VCC": "power_in",
+      "GND": "power_in",
+      "SDA": "bidirectional",
+      "SCL": "input",
+      "OUT1": "open_collector",
+      "OUT2": "open_collector",
+      "OUT3": "open_collector"
+    }
+  },
+  {
+    "pn": "BQ24072RGTR",
+    "family": "batt_charger",
+    "tier": 1,
+    "manufacturer": "TI",
+    "kicad_lib": "Battery_Management",
+    "kicad_sym": "BQ24072RGT",
+    "expected_pins": 17,
+    "pins": [
+      {
+        "number": "1",
+        "name": "TS",
+        "type": "passive"
+      },
+      {
+        "number": "10",
+        "name": "OUT",
+        "type": "power_out"
+      },
+      {
+        "number": "11",
+        "name": "OUT",
+        "type": "passive"
+      },
+      {
+        "number": "12",
+        "name": "ILIM",
+        "type": "passive"
+      },
+      {
+        "number": "13",
+        "name": "IN",
+        "type": "power_in"
+      },
+      {
+        "number": "14",
+        "name": "TMR",
+        "type": "input"
+      },
+      {
+        "number": "15",
+        "name": "TD",
+        "type": "input"
+      },
+      {
+        "number": "16",
+        "name": "ISET",
+        "type": "passive"
+      },
+      {
+        "number": "17",
+        "name": "VSS",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "BAT",
+        "type": "power_out"
+      },
+      {
+        "number": "3",
+        "name": "BAT",
+        "type": "passive"
+      },
+      {
+        "number": "4",
+        "name": "~{CE}",
+        "type": "input"
+      },
+      {
+        "number": "5",
+        "name": "EN2",
+        "type": "input"
+      },
+      {
+        "number": "6",
+        "name": "EN1",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "~{PGOOD}",
+        "type": "open_collector"
+      },
+      {
+        "number": "8",
+        "name": "VSS",
+        "type": "power_in"
+      },
+      {
+        "number": "9",
+        "name": "~{CHG}",
+        "type": "open_collector"
+      }
+    ],
+    "key_pins": {
+      "TS": "passive",
+      "OUT": "passive",
+      "ILIM": "passive",
+      "IN": "power_in",
+      "TMR": "input",
+      "TD": "input",
+      "ISET": "passive",
+      "VSS": "power_in",
+      "BAT": "passive",
+      "~{CE}": "input",
+      "EN2": "input",
+      "EN1": "input",
+      "~{PGOOD}": "open_collector",
+      "~{CHG}": "open_collector"
+    }
+  },
+  {
+    "pn": "STM32F103C8T6",
+    "family": "mcu",
+    "tier": 2,
+    "manufacturer": "ST",
+    "kicad_lib": "MCU_ST_STM32F1",
+    "kicad_sym": "STM32F103C8Tx",
+    "expected_pins": 48,
+    "pins": [
+      {
+        "number": "1",
+        "name": "VBAT",
+        "type": "power_in"
+      },
+      {
+        "number": "10",
+        "name": "PA0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "11",
+        "name": "PA1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "12",
+        "name": "PA2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "13",
+        "name": "PA3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "14",
+        "name": "PA4",
+        "type": "bidirectional"
+      },
+      {
+        "number": "15",
+        "name": "PA5",
+        "type": "bidirectional"
+      },
+      {
+        "number": "16",
+        "name": "PA6",
+        "type": "bidirectional"
+      },
+      {
+        "number": "17",
+        "name": "PA7",
+        "type": "bidirectional"
+      },
+      {
+        "number": "18",
+        "name": "PB0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "19",
+        "name": "PB1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "2",
+        "name": "PC13",
+        "type": "bidirectional"
+      },
+      {
+        "number": "20",
+        "name": "PB2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "21",
+        "name": "PB10",
+        "type": "bidirectional"
+      },
+      {
+        "number": "22",
+        "name": "PB11",
+        "type": "bidirectional"
+      },
+      {
+        "number": "23",
+        "name": "VSS",
+        "type": "power_in"
+      },
+      {
+        "number": "24",
+        "name": "VDD",
+        "type": "power_in"
+      },
+      {
+        "number": "25",
+        "name": "PB12",
+        "type": "bidirectional"
+      },
+      {
+        "number": "26",
+        "name": "PB13",
+        "type": "bidirectional"
+      },
+      {
+        "number": "27",
+        "name": "PB14",
+        "type": "bidirectional"
+      },
+      {
+        "number": "28",
+        "name": "PB15",
+        "type": "bidirectional"
+      },
+      {
+        "number": "29",
+        "name": "PA8",
+        "type": "bidirectional"
+      },
+      {
+        "number": "3",
+        "name": "PC14",
+        "type": "bidirectional"
+      },
+      {
+        "number": "30",
+        "name": "PA9",
+        "type": "bidirectional"
+      },
+      {
+        "number": "31",
+        "name": "PA10",
+        "type": "bidirectional"
+      },
+      {
+        "number": "32",
+        "name": "PA11",
+        "type": "bidirectional"
+      },
+      {
+        "number": "33",
+        "name": "PA12",
+        "type": "bidirectional"
+      },
+      {
+        "number": "34",
+        "name": "PA13",
+        "type": "bidirectional"
+      },
+      {
+        "number": "35",
+        "name": "VSS",
+        "type": "passive"
+      },
+      {
+        "number": "36",
+        "name": "VDD",
+        "type": "power_in"
+      },
+      {
+        "number": "37",
+        "name": "PA14",
+        "type": "bidirectional"
+      },
+      {
+        "number": "38",
+        "name": "PA15",
+        "type": "bidirectional"
+      },
+      {
+        "number": "39",
+        "name": "PB3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "4",
+        "name": "PC15",
+        "type": "bidirectional"
+      },
+      {
+        "number": "40",
+        "name": "PB4",
+        "type": "bidirectional"
+      },
+      {
+        "number": "41",
+        "name": "PB5",
+        "type": "bidirectional"
+      },
+      {
+        "number": "42",
+        "name": "PB6",
+        "type": "bidirectional"
+      },
+      {
+        "number": "43",
+        "name": "PB7",
+        "type": "bidirectional"
+      },
+      {
+        "number": "44",
+        "name": "BOOT0",
+        "type": "input"
+      },
+      {
+        "number": "45",
+        "name": "PB8",
+        "type": "bidirectional"
+      },
+      {
+        "number": "46",
+        "name": "PB9",
+        "type": "bidirectional"
+      },
+      {
+        "number": "47",
+        "name": "VSS",
+        "type": "passive"
+      },
+      {
+        "number": "48",
+        "name": "VDD",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "PD0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "6",
+        "name": "PD1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "7",
+        "name": "NRST",
+        "type": "input"
+      },
+      {
+        "number": "8",
+        "name": "VSSA",
+        "type": "power_in"
+      },
+      {
+        "number": "9",
+        "name": "VDDA",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "VBAT": "power_in",
+      "PA0": "bidirectional",
+      "PA1": "bidirectional",
+      "PA2": "bidirectional",
+      "PA3": "bidirectional",
+      "PA4": "bidirectional",
+      "PA5": "bidirectional",
+      "PA6": "bidirectional",
+      "PA7": "bidirectional",
+      "PB0": "bidirectional",
+      "PB1": "bidirectional",
+      "PC13": "bidirectional",
+      "PB2": "bidirectional",
+      "PB10": "bidirectional",
+      "PB11": "bidirectional",
+      "VSS": "passive",
+      "VDD": "power_in",
+      "PB12": "bidirectional",
+      "PB13": "bidirectional",
+      "PB14": "bidirectional",
+      "PB15": "bidirectional",
+      "PA8": "bidirectional",
+      "PC14": "bidirectional",
+      "PA9": "bidirectional",
+      "PA10": "bidirectional",
+      "PA11": "bidirectional",
+      "PA12": "bidirectional",
+      "PA13": "bidirectional",
+      "PA14": "bidirectional",
+      "PA15": "bidirectional",
+      "PB3": "bidirectional",
+      "PC15": "bidirectional",
+      "PB4": "bidirectional",
+      "PB5": "bidirectional",
+      "PB6": "bidirectional",
+      "PB7": "bidirectional",
+      "BOOT0": "input",
+      "PB8": "bidirectional",
+      "PB9": "bidirectional",
+      "PD0": "bidirectional",
+      "PD1": "bidirectional",
+      "NRST": "input",
+      "VSSA": "power_in",
+      "VDDA": "power_in"
+    }
+  },
+  {
+    "pn": "ATmega328P-PU",
+    "family": "mcu",
+    "tier": 2,
+    "manufacturer": "Microchip",
+    "kicad_lib": "MCU_Microchip_ATmega",
+    "kicad_sym": "ATmega328P-P",
+    "expected_pins": 32,
+    "pins": [
+      {
+        "number": "1",
+        "name": "PC6",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "PD7",
+        "type": "passive"
+      },
+      {
+        "number": "3",
+        "name": "PD6",
+        "type": "passive"
+      },
+      {
+        "number": "4",
+        "name": "PD5",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "PD4",
+        "type": "passive"
+      },
+      {
+        "number": "6",
+        "name": "PD3",
+        "type": "passive"
+      },
+      {
+        "number": "7",
+        "name": "PD2",
+        "type": "passive"
+      },
+      {
+        "number": "8",
+        "name": "PD1",
+        "type": "passive"
+      },
+      {
+        "number": "9",
+        "name": "PD0",
+        "type": "passive"
+      },
+      {
+        "number": "10",
+        "name": "PC0",
+        "type": "passive"
+      },
+      {
+        "number": "11",
+        "name": "PC1",
+        "type": "passive"
+      },
+      {
+        "number": "12",
+        "name": "PC2",
+        "type": "passive"
+      },
+      {
+        "number": "13",
+        "name": "PC3",
+        "type": "passive"
+      },
+      {
+        "number": "14",
+        "name": "PC4",
+        "type": "passive"
+      },
+      {
+        "number": "15",
+        "name": "PC5",
+        "type": "passive"
+      },
+      {
+        "number": "16",
+        "name": "GND",
+        "type": "passive"
+      },
+      {
+        "number": "17",
+        "name": "VCC",
+        "type": "passive"
+      },
+      {
+        "number": "18",
+        "name": "PB7",
+        "type": "passive"
+      },
+      {
+        "number": "19",
+        "name": "PB6",
+        "type": "passive"
+      },
+      {
+        "number": "20",
+        "name": "PB5",
+        "type": "passive"
+      },
+      {
+        "number": "21",
+        "name": "PB4",
+        "type": "passive"
+      },
+      {
+        "number": "22",
+        "name": "PB3",
+        "type": "passive"
+      },
+      {
+        "number": "23",
+        "name": "PB2",
+        "type": "passive"
+      },
+      {
+        "number": "24",
+        "name": "PB1",
+        "type": "passive"
+      },
+      {
+        "number": "25",
+        "name": "PB0",
+        "type": "passive"
+      },
+      {
+        "number": "26",
+        "name": "AREF",
+        "type": "passive"
+      },
+      {
+        "number": "27",
+        "name": "PA7",
+        "type": "passive"
+      },
+      {
+        "number": "28",
+        "name": "PA6",
+        "type": "passive"
+      },
+      {
+        "number": "29",
+        "name": "PA5",
+        "type": "passive"
+      },
+      {
+        "number": "30",
+        "name": "PA4",
+        "type": "passive"
+      },
+      {
+        "number": "31",
+        "name": "PA3",
+        "type": "passive"
+      },
+      {
+        "number": "32",
+        "name": "PA2",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "PC6": "passive",
+      "PD7": "passive",
+      "PD6": "passive",
+      "PD5": "passive",
+      "PD4": "passive",
+      "PD3": "passive",
+      "PD2": "passive",
+      "PD1": "passive",
+      "PD0": "passive",
+      "PC0": "passive",
+      "PC1": "passive",
+      "PC2": "passive",
+      "PC3": "passive",
+      "PC4": "passive",
+      "PC5": "passive",
+      "GND": "passive",
+      "VCC": "passive",
+      "PB7": "passive",
+      "PB6": "passive",
+      "PB5": "passive",
+      "PB4": "passive",
+      "PB3": "passive",
+      "PB2": "passive",
+      "PB1": "passive",
+      "PB0": "passive",
+      "AREF": "passive",
+      "PA7": "passive",
+      "PA6": "passive",
+      "PA5": "passive",
+      "PA4": "passive",
+      "PA3": "passive",
+      "PA2": "passive"
+    },
+    "notes": "Switched to PDIP-28 variant - engine extracts PDIP pin table"
+  },
+  {
+    "pn": "ESP32-C3",
+    "family": "mcu",
+    "tier": 2,
+    "manufacturer": "Espressif",
+    "kicad_lib": "MCU_Espressif",
+    "kicad_sym": "ESP32-C3",
+    "expected_pins": 33,
+    "pins": [
+      {
+        "number": "1",
+        "name": "LNA_IN",
+        "type": "bidirectional"
+      },
+      {
+        "number": "10",
+        "name": "MTDI",
+        "type": "bidirectional"
+      },
+      {
+        "number": "11",
+        "name": "VDD3P3_RTC",
+        "type": "power_in"
+      },
+      {
+        "number": "12",
+        "name": "MTCK",
+        "type": "bidirectional"
+      },
+      {
+        "number": "13",
+        "name": "MTDO",
+        "type": "bidirectional"
+      },
+      {
+        "number": "14",
+        "name": "GPIO8",
+        "type": "bidirectional"
+      },
+      {
+        "number": "15",
+        "name": "GPIO9",
+        "type": "bidirectional"
+      },
+      {
+        "number": "16",
+        "name": "GPIO10",
+        "type": "bidirectional"
+      },
+      {
+        "number": "17",
+        "name": "VDD3P3_CPU",
+        "type": "power_in"
+      },
+      {
+        "number": "18",
+        "name": "VDD_SPI",
+        "type": "power_out"
+      },
+      {
+        "number": "19",
+        "name": "SPIHD",
+        "type": "bidirectional"
+      },
+      {
+        "number": "2",
+        "name": "VDD3P3",
+        "type": "power_in"
+      },
+      {
+        "number": "20",
+        "name": "SPIWP",
+        "type": "bidirectional"
+      },
+      {
+        "number": "21",
+        "name": "SPICS0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "22",
+        "name": "SPICLK",
+        "type": "bidirectional"
+      },
+      {
+        "number": "23",
+        "name": "SPID",
+        "type": "bidirectional"
+      },
+      {
+        "number": "24",
+        "name": "SPIQ",
+        "type": "bidirectional"
+      },
+      {
+        "number": "25",
+        "name": "GPIO18",
+        "type": "bidirectional"
+      },
+      {
+        "number": "26",
+        "name": "GPIO19",
+        "type": "bidirectional"
+      },
+      {
+        "number": "27",
+        "name": "U0RXD",
+        "type": "bidirectional"
+      },
+      {
+        "number": "28",
+        "name": "U0TXD",
+        "type": "bidirectional"
+      },
+      {
+        "number": "29",
+        "name": "XTAL_N",
+        "type": "bidirectional"
+      },
+      {
+        "number": "3",
+        "name": "VDD3P3",
+        "type": "passive"
+      },
+      {
+        "number": "30",
+        "name": "XTAL_P",
+        "type": "bidirectional"
+      },
+      {
+        "number": "31",
+        "name": "VDDA",
+        "type": "power_in"
+      },
+      {
+        "number": "32",
+        "name": "VDDA",
+        "type": "passive"
+      },
+      {
+        "number": "33",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "4",
+        "name": "XTAL_32K_P",
+        "type": "bidirectional"
+      },
+      {
+        "number": "5",
+        "name": "XTAL_32K_N",
+        "type": "bidirectional"
+      },
+      {
+        "number": "6",
+        "name": "GPIO2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "7",
+        "name": "CHIP_EN",
+        "type": "bidirectional"
+      },
+      {
+        "number": "8",
+        "name": "GPIO3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "9",
+        "name": "MTMS",
+        "type": "bidirectional"
+      }
+    ],
+    "key_pins": {
+      "LNA_IN": "bidirectional",
+      "MTDI": "bidirectional",
+      "VDD3P3_RTC": "power_in",
+      "MTCK": "bidirectional",
+      "MTDO": "bidirectional",
+      "GPIO8": "bidirectional",
+      "GPIO9": "bidirectional",
+      "GPIO10": "bidirectional",
+      "VDD3P3_CPU": "power_in",
+      "VDD_SPI": "power_out",
+      "SPIHD": "bidirectional",
+      "VDD3P3": "passive",
+      "SPIWP": "bidirectional",
+      "SPICS0": "bidirectional",
+      "SPICLK": "bidirectional",
+      "SPID": "bidirectional",
+      "SPIQ": "bidirectional",
+      "GPIO18": "bidirectional",
+      "GPIO19": "bidirectional",
+      "U0RXD": "bidirectional",
+      "U0TXD": "bidirectional",
+      "XTAL_N": "bidirectional",
+      "XTAL_P": "bidirectional",
+      "VDDA": "passive",
+      "GND": "power_in",
+      "XTAL_32K_P": "bidirectional",
+      "XTAL_32K_N": "bidirectional",
+      "GPIO2": "bidirectional",
+      "CHIP_EN": "bidirectional",
+      "GPIO3": "bidirectional",
+      "MTMS": "bidirectional"
+    }
+  },
+  {
+    "pn": "RP2040",
+    "family": "mcu",
+    "tier": 2,
+    "manufacturer": "RaspberryPi",
+    "kicad_lib": "MCU_RaspberryPi",
+    "kicad_sym": "RP2040",
+    "expected_pins": 57,
+    "pins": [
+      {
+        "number": "1",
+        "name": "IOVDD",
+        "type": "power_in"
+      },
+      {
+        "number": "10",
+        "name": "IOVDD",
+        "type": "passive"
+      },
+      {
+        "number": "11",
+        "name": "GPIO8",
+        "type": "bidirectional"
+      },
+      {
+        "number": "12",
+        "name": "GPIO9",
+        "type": "bidirectional"
+      },
+      {
+        "number": "13",
+        "name": "GPIO10",
+        "type": "bidirectional"
+      },
+      {
+        "number": "14",
+        "name": "GPIO11",
+        "type": "bidirectional"
+      },
+      {
+        "number": "15",
+        "name": "GPIO12",
+        "type": "bidirectional"
+      },
+      {
+        "number": "16",
+        "name": "GPIO13",
+        "type": "bidirectional"
+      },
+      {
+        "number": "17",
+        "name": "GPIO14",
+        "type": "bidirectional"
+      },
+      {
+        "number": "18",
+        "name": "GPIO15",
+        "type": "bidirectional"
+      },
+      {
+        "number": "19",
+        "name": "TESTEN",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "GPIO0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "20",
+        "name": "XIN",
+        "type": "input"
+      },
+      {
+        "number": "21",
+        "name": "XOUT",
+        "type": "passive"
+      },
+      {
+        "number": "22",
+        "name": "IOVDD",
+        "type": "passive"
+      },
+      {
+        "number": "23",
+        "name": "DVDD",
+        "type": "power_in"
+      },
+      {
+        "number": "24",
+        "name": "SWCLK",
+        "type": "input"
+      },
+      {
+        "number": "25",
+        "name": "SWD",
+        "type": "bidirectional"
+      },
+      {
+        "number": "26",
+        "name": "RUN",
+        "type": "input"
+      },
+      {
+        "number": "27",
+        "name": "GPIO16",
+        "type": "bidirectional"
+      },
+      {
+        "number": "28",
+        "name": "GPIO17",
+        "type": "bidirectional"
+      },
+      {
+        "number": "29",
+        "name": "GPIO18",
+        "type": "bidirectional"
+      },
+      {
+        "number": "3",
+        "name": "GPIO1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "30",
+        "name": "GPIO19",
+        "type": "bidirectional"
+      },
+      {
+        "number": "31",
+        "name": "GPIO20",
+        "type": "bidirectional"
+      },
+      {
+        "number": "32",
+        "name": "GPIO21",
+        "type": "bidirectional"
+      },
+      {
+        "number": "33",
+        "name": "IOVDD",
+        "type": "passive"
+      },
+      {
+        "number": "34",
+        "name": "GPIO22",
+        "type": "bidirectional"
+      },
+      {
+        "number": "35",
+        "name": "GPIO23",
+        "type": "bidirectional"
+      },
+      {
+        "number": "36",
+        "name": "GPIO24",
+        "type": "bidirectional"
+      },
+      {
+        "number": "37",
+        "name": "GPIO25",
+        "type": "bidirectional"
+      },
+      {
+        "number": "38",
+        "name": "GPIO26_ADC0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "39",
+        "name": "GPIO27_ADC1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "4",
+        "name": "GPIO2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "40",
+        "name": "GPIO28_ADC2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "41",
+        "name": "GPIO29_ADC3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "42",
+        "name": "IOVDD",
+        "type": "passive"
+      },
+      {
+        "number": "43",
+        "name": "ADC_AVDD",
+        "type": "power_in"
+      },
+      {
+        "number": "44",
+        "name": "VREG_IN",
+        "type": "power_in"
+      },
+      {
+        "number": "45",
+        "name": "VREG_VOUT",
+        "type": "power_out"
+      },
+      {
+        "number": "46",
+        "name": "USB_DM",
+        "type": "bidirectional"
+      },
+      {
+        "number": "47",
+        "name": "USB_DP",
+        "type": "bidirectional"
+      },
+      {
+        "number": "48",
+        "name": "USB_VDD",
+        "type": "power_in"
+      },
+      {
+        "number": "49",
+        "name": "IOVDD",
+        "type": "passive"
+      },
+      {
+        "number": "5",
+        "name": "GPIO3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "50",
+        "name": "DVDD",
+        "type": "passive"
+      },
+      {
+        "number": "51",
+        "name": "QSPI_SD3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "52",
+        "name": "QSPI_SCLK",
+        "type": "output"
+      },
+      {
+        "number": "53",
+        "name": "QSPI_SD0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "54",
+        "name": "QSPI_SD2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "55",
+        "name": "QSPI_SD1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "56",
+        "name": "QSPI_SS",
+        "type": "bidirectional"
+      },
+      {
+        "number": "57",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "GPIO4",
+        "type": "bidirectional"
+      },
+      {
+        "number": "7",
+        "name": "GPIO5",
+        "type": "bidirectional"
+      },
+      {
+        "number": "8",
+        "name": "GPIO6",
+        "type": "bidirectional"
+      },
+      {
+        "number": "9",
+        "name": "GPIO7",
+        "type": "bidirectional"
+      }
+    ],
+    "key_pins": {
+      "IOVDD": "passive",
+      "GPIO8": "bidirectional",
+      "GPIO9": "bidirectional",
+      "GPIO10": "bidirectional",
+      "GPIO11": "bidirectional",
+      "GPIO12": "bidirectional",
+      "GPIO13": "bidirectional",
+      "GPIO14": "bidirectional",
+      "GPIO15": "bidirectional",
+      "TESTEN": "input",
+      "GPIO0": "bidirectional",
+      "XIN": "input",
+      "XOUT": "passive",
+      "DVDD": "passive",
+      "SWCLK": "input",
+      "SWD": "bidirectional",
+      "RUN": "input",
+      "GPIO16": "bidirectional",
+      "GPIO17": "bidirectional",
+      "GPIO18": "bidirectional",
+      "GPIO1": "bidirectional",
+      "GPIO19": "bidirectional",
+      "GPIO20": "bidirectional",
+      "GPIO21": "bidirectional",
+      "GPIO22": "bidirectional",
+      "GPIO23": "bidirectional",
+      "GPIO24": "bidirectional",
+      "GPIO25": "bidirectional",
+      "GPIO26_ADC0": "bidirectional",
+      "GPIO27_ADC1": "bidirectional",
+      "GPIO2": "bidirectional",
+      "GPIO28_ADC2": "bidirectional",
+      "GPIO29_ADC3": "bidirectional",
+      "ADC_AVDD": "power_in",
+      "VREG_IN": "power_in",
+      "VREG_VOUT": "power_out",
+      "USB_DM": "bidirectional",
+      "USB_DP": "bidirectional",
+      "USB_VDD": "power_in",
+      "GPIO3": "bidirectional",
+      "QSPI_SD3": "bidirectional",
+      "QSPI_SCLK": "output",
+      "QSPI_SD0": "bidirectional",
+      "QSPI_SD2": "bidirectional",
+      "QSPI_SD1": "bidirectional",
+      "QSPI_SS": "bidirectional",
+      "GND": "power_in",
+      "GPIO4": "bidirectional",
+      "GPIO5": "bidirectional",
+      "GPIO6": "bidirectional",
+      "GPIO7": "bidirectional"
+    }
+  },
+  {
+    "pn": "ICE40UP5K-SG48",
+    "family": "fpga",
+    "tier": 2,
+    "manufacturer": "Lattice",
+    "kicad_lib": "FPGA_Lattice",
+    "kicad_sym": "ICE40UP5K-SG48ITR",
+    "expected_pins": 49,
+    "pins": [
+      {
+        "number": "23",
+        "name": "IOT_37a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "25",
+        "name": "IOT_36b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "26",
+        "name": "IOT_39a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "27",
+        "name": "IOT_38b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "28",
+        "name": "IOT_41a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "31",
+        "name": "IOT_42b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "32",
+        "name": "IOT_43a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "33",
+        "name": "VCCIO_0",
+        "type": "power_in"
+      },
+      {
+        "number": "34",
+        "name": "IOT_44b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "35",
+        "name": "IOT_46b_G0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "36",
+        "name": "IOT_48b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "37",
+        "name": "IOT_45a_G1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "38",
+        "name": "IOT_50b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "39",
+        "name": "RGB0",
+        "type": "open_collector"
+      },
+      {
+        "number": "40",
+        "name": "RGB1",
+        "type": "open_collector"
+      },
+      {
+        "number": "41",
+        "name": "RGB2",
+        "type": "open_collector"
+      },
+      {
+        "number": "42",
+        "name": "IOT_51a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "43",
+        "name": "IOT_49a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "10",
+        "name": "IOB_18a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "11",
+        "name": "IOB_20a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "12",
+        "name": "IOB_22a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "13",
+        "name": "IOB_24a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "14",
+        "name": "IOB_32a_SPI_SO",
+        "type": "bidirectional"
+      },
+      {
+        "number": "15",
+        "name": "IOB_34a_SPI_SCK",
+        "type": "bidirectional"
+      },
+      {
+        "number": "16",
+        "name": "IOB_35b_SPI_SS",
+        "type": "bidirectional"
+      },
+      {
+        "number": "17",
+        "name": "IOB_33b_SPI_SI",
+        "type": "bidirectional"
+      },
+      {
+        "number": "18",
+        "name": "IOB_31b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "19",
+        "name": "IOB_29b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "20",
+        "name": "IOB_25b_G3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "21",
+        "name": "IOB_23b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "22",
+        "name": "SPI_VCCIO1",
+        "type": "power_in"
+      },
+      {
+        "number": "6",
+        "name": "IOB_13b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "7",
+        "name": "CDONE",
+        "type": "open_collector"
+      },
+      {
+        "number": "8",
+        "name": "~{CRESET}",
+        "type": "input"
+      },
+      {
+        "number": "9",
+        "name": "IOB_16a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "1",
+        "name": "VCCIO_2",
+        "type": "power_in"
+      },
+      {
+        "number": "2",
+        "name": "IOB_6a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "3",
+        "name": "IOB_9b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "4",
+        "name": "IOB_8a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "44",
+        "name": "IOB_3b_G6",
+        "type": "bidirectional"
+      },
+      {
+        "number": "45",
+        "name": "IOB_5b",
+        "type": "bidirectional"
+      },
+      {
+        "number": "46",
+        "name": "IOB_0a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "47",
+        "name": "IOB_2a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "48",
+        "name": "IOB_4a",
+        "type": "bidirectional"
+      },
+      {
+        "number": "24",
+        "name": "VPP_2V5",
+        "type": "power_in"
+      },
+      {
+        "number": "29",
+        "name": "VCCPLL",
+        "type": "power_out"
+      },
+      {
+        "number": "30",
+        "name": "VCC",
+        "type": "passive"
+      },
+      {
+        "number": "49",
+        "name": "GND",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "VCC",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "IOT_37a": "bidirectional",
+      "IOT_36b": "bidirectional",
+      "IOT_39a": "bidirectional",
+      "IOT_38b": "bidirectional",
+      "IOT_41a": "bidirectional",
+      "IOT_42b": "bidirectional",
+      "IOT_43a": "bidirectional",
+      "VCCIO_0": "power_in",
+      "IOT_44b": "bidirectional",
+      "IOT_46b_G0": "bidirectional",
+      "IOT_48b": "bidirectional",
+      "IOT_45a_G1": "bidirectional",
+      "IOT_50b": "bidirectional",
+      "RGB0": "open_collector",
+      "RGB1": "open_collector",
+      "RGB2": "open_collector",
+      "IOT_51a": "bidirectional",
+      "IOT_49a": "bidirectional",
+      "IOB_18a": "bidirectional",
+      "IOB_20a": "bidirectional",
+      "IOB_22a": "bidirectional",
+      "IOB_24a": "bidirectional",
+      "IOB_32a_SPI_SO": "bidirectional",
+      "IOB_34a_SPI_SCK": "bidirectional",
+      "IOB_35b_SPI_SS": "bidirectional",
+      "IOB_33b_SPI_SI": "bidirectional",
+      "IOB_31b": "bidirectional",
+      "IOB_29b": "bidirectional",
+      "IOB_25b_G3": "bidirectional",
+      "IOB_23b": "bidirectional",
+      "SPI_VCCIO1": "power_in",
+      "IOB_13b": "bidirectional",
+      "CDONE": "open_collector",
+      "~{CRESET}": "input",
+      "IOB_16a": "bidirectional",
+      "VCCIO_2": "power_in",
+      "IOB_6a": "bidirectional",
+      "IOB_9b": "bidirectional",
+      "IOB_8a": "bidirectional",
+      "IOB_3b_G6": "bidirectional",
+      "IOB_5b": "bidirectional",
+      "IOB_0a": "bidirectional",
+      "IOB_2a": "bidirectional",
+      "IOB_4a": "bidirectional",
+      "VPP_2V5": "power_in",
+      "VCCPLL": "power_out",
+      "VCC": "power_in",
+      "GND": "power_in"
+    }
+  },
+  {
+    "pn": "GD25Q127CSIG",
+    "family": "flash",
+    "tier": 2,
+    "manufacturer": "GigaDevice",
+    "kicad_lib": "Memory_Flash",
+    "kicad_sym": "GD25QxxxEY",
+    "expected_pins": 8,
+    "pins": [
+      {
+        "number": "1",
+        "name": "~{CS}",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "SO/IO1",
+        "type": "bidirectional"
+      },
+      {
+        "number": "3",
+        "name": "~{WP}/IO2",
+        "type": "bidirectional"
+      },
+      {
+        "number": "4",
+        "name": "VSS",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "SI/IO0",
+        "type": "bidirectional"
+      },
+      {
+        "number": "6",
+        "name": "SCLK",
+        "type": "input"
+      },
+      {
+        "number": "7",
+        "name": "~{HOLD}/~{RESET}/IO3",
+        "type": "bidirectional"
+      },
+      {
+        "number": "8",
+        "name": "VCC",
+        "type": "power_in"
+      }
+    ],
+    "key_pins": {
+      "~{CS}": "input",
+      "SO/IO1": "bidirectional",
+      "~{WP}/IO2": "bidirectional",
+      "VSS": "power_in",
+      "SI/IO0": "bidirectional",
+      "SCLK": "input",
+      "~{HOLD}/~{RESET}/IO3": "bidirectional",
+      "VCC": "power_in"
+    }
+  },
+  {
+    "pn": "24AA02E48T-I/OT",
+    "family": "eeprom",
+    "tier": 2,
+    "manufacturer": "Microchip",
+    "kicad_lib": "Memory_EEPROM",
+    "kicad_sym": "24AA02E-OT",
+    "expected_pins": 5,
+    "pins": [
+      {
+        "number": "1",
+        "name": "SCL",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "V_{SS}",
+        "type": "power_in"
+      },
+      {
+        "number": "3",
+        "name": "SDA",
+        "type": "bidirectional"
+      },
+      {
+        "number": "4",
+        "name": "V_{CC}",
+        "type": "power_in"
+      },
+      {
+        "number": "5",
+        "name": "NC",
+        "type": "no_connect"
+      }
+    ],
+    "key_pins": {
+      "SCL": "input",
+      "V_{SS}": "power_in",
+      "SDA": "bidirectional",
+      "V_{CC}": "power_in",
+      "NC": "no_connect"
+    }
+  },
+  {
+    "pn": "BSS138",
+    "family": "mosfet",
+    "tier": 2,
+    "manufacturer": "Onsemi",
+    "kicad_lib": "Transistor_FET",
+    "kicad_sym": "BSS138",
+    "expected_pins": 3,
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "type": "input"
+      },
+      {
+        "number": "2",
+        "name": "S",
+        "type": "passive"
+      },
+      {
+        "number": "3",
+        "name": "D",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "G": "input",
+      "S": "passive",
+      "D": "passive"
+    }
+  },
+  {
+    "pn": "BC547C",
+    "family": "bjt",
+    "tier": 2,
+    "manufacturer": "Onsemi",
+    "kicad_lib": "Transistor_BJT",
+    "kicad_sym": "BC547",
+    "expected_pins": 3,
+    "pins": [
+      {
+        "number": "1",
+        "name": "C",
+        "type": "passive"
+      },
+      {
+        "number": "2",
+        "name": "B",
+        "type": "input"
+      },
+      {
+        "number": "3",
+        "name": "E",
+        "type": "passive"
+      }
+    ],
+    "key_pins": {
+      "C": "passive",
+      "B": "input",
+      "E": "passive"
+    }
+  }
+]
