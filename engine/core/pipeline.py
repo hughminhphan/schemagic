@@ -162,6 +162,16 @@ class Pipeline:
         self._status("Searching for matching symbol...")
         match = match_symbol(datasheet, self.index)
 
+        # When no package was auto-selected, try the symbol's default footprint
+        # so we have SOMETHING to show even before package selection
+        if not match.footprint_lib and match.symbol_lib:
+            entry = self.index.get_symbol_entry(match.symbol_lib, match.symbol_name)
+            if entry and entry.get("footprint"):
+                fp_str = entry["footprint"]
+                if ":" in fp_str:
+                    match.footprint_lib, match.footprint_name = fp_str.split(":", 1)
+                    match.footprint_score = 50.0
+
         if len(candidates) > 1:
             self._status("Multiple packages found — awaiting selection")
         elif len(candidates) == 0:

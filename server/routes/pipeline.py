@@ -97,37 +97,13 @@ def _run_pipeline_thread(job_id: str, part_number: str, jobs: JobStore, local_pd
             suffix_code=suffix_code,
         )
 
-        if len(candidates) > 1 and datasheet.package is None:
-            # Need user to pick a package
-            jobs.update(job_id, status="awaiting_package")
-            q.put({
-                "event": "package_select",
-                "data": {
-                    "candidates": [
-                        {
-                            "name": c.name,
-                            "pin_count": c.pin_count,
-                            "ti_code": c.ti_code or "",
-                        }
-                        for c in candidates
-                    ]
-                },
-            })
-            # Wait for user to select a package (up to 5 minutes)
-            job["package_event"].wait(timeout=300)
-
-            selected = job.get("selected_package")
-            if not selected:
-                q.put({"event": "error", "data": {"message": "Package selection timed out"}})
-                jobs.update(job_id, status="error")
-                q.put(None)
-                return
-
-            # Run phase 2 with selected package
+        if datasheet.package is None and len(candidates) > 0:
+            # Auto-select first candidate instead of blocking for user input
+            best = candidates[0]
             pkg = PackageInfo(
-                name=selected.name,
-                pin_count=selected.pin_count,
-                ti_code=selected.ti_code,
+                name=best.name,
+                pin_count=best.pin_count,
+                ti_code=best.ti_code or "",
             )
             datasheet, match, _, _ = pipe.select_package_and_finish(datasheet, pkg)
             jobs.update(job_id, datasheet=datasheet, match=match)
@@ -144,6 +120,10 @@ def _run_pipeline_thread(job_id: str, part_number: str, jobs: JobStore, local_pd
                 "datasheet": ds_schema.model_dump(),
                 "match": match_schema.model_dump(),
                 "pins": pins_data,
+                "candidates": [
+                    {"name": c.name, "pin_count": c.pin_count, "ti_code": c.ti_code or ""}
+                    for c in candidates
+                ],
             },
         })
 
@@ -208,31 +188,25 @@ async def select_package(req: SelectPackageRequest, request: Request):
     job = jobs.get(req.job_id)
 
     if not job:
-        return {"error": "Job not found"}
+        raise HTTPException(status_code=404, detail="Job not found")
 
-    # Set the selected package and signal the pipeline thread
-    job["selected_package"] = req.package
-    job["package_event"].set()
+    pipe = job.get("pipeline")
+    ds = job.get("datasheet")
+    if not pipe or not ds:
+        raise HTTPException(status_code=400, detail="Pipeline not ready")
 
-    # Wait for the pipeline thread to finish processing
-    q = job["queue"]
+    pkg = PackageInfo(
+        name=req.package.name,
+        pin_count=req.package.pin_count,
+        ti_code=req.package.ti_code or "",
+    )
     loop = asyncio.get_event_loop()
+    datasheet, match, _, _ = await loop.run_in_executor(
+        None, lambda: pipe.select_package_and_finish(ds, pkg)
+    )
+    jobs.update(req.job_id, datasheet=datasheet, match=match)
 
-    # Drain queue until we get the complete event
-    while True:
-        try:
-            msg = await loop.run_in_executor(None, lambda: q.get(timeout=60))
-        except Exception:
-            break
-        if msg is None or msg["event"] in ("complete", "error"):
-            break
-
-    # Return current state
-    job = jobs.get(req.job_id)
-    ds = job["datasheet"]
-    match = job["match"]
-
-    ds_schema = _datasheet_to_schema(ds)
+    ds_schema = _datasheet_to_schema(datasheet)
     match_schema = _match_to_schema(match)
 
     return SelectPackageResponse(

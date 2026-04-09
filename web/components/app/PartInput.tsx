@@ -67,11 +67,14 @@ export default function PartInput() {
               case "status":
                 dispatch({ type: "ADD_LOG", message: d.message });
                 break;
-              case "package_select":
-                dispatch({ type: "PACKAGE_SELECT", candidates: d.candidates });
-                return;
               case "complete":
-                dispatch({ type: "COMPLETE", datasheet: d.datasheet, match: d.match, pins: d.pins });
+                dispatch({
+                  type: "COMPLETE",
+                  datasheet: d.datasheet,
+                  match: d.match,
+                  pins: d.pins,
+                  candidates: d.candidates || [],
+                });
                 return;
               case "error":
                 dispatch({ type: "ERROR", message: d.message });

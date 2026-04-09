@@ -11,7 +11,6 @@ import {
 export type Step =
   | "IDLE"
   | "RUNNING"
-  | "PACKAGE_SELECT"
   | "PIN_REVIEW"
   | "GENERATING"
   | "DONE"
@@ -80,9 +79,15 @@ export interface WizardState {
 export type WizardAction =
   | { type: "START_RUN"; jobId: string; partNumber: string }
   | { type: "ADD_LOG"; message: string }
-  | { type: "PACKAGE_SELECT"; candidates: PackageCandidate[] }
   | {
       type: "COMPLETE";
+      datasheet: DatasheetSummary;
+      match: MatchResult;
+      pins: PinInfo[];
+      candidates: PackageCandidate[];
+    }
+  | {
+      type: "SWITCH_PACKAGE";
       datasheet: DatasheetSummary;
       match: MatchResult;
       pins: PinInfo[];
@@ -120,8 +125,6 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
       };
     case "ADD_LOG":
       return { ...state, logs: [...state.logs, action.message] };
-    case "PACKAGE_SELECT":
-      return { ...state, step: "PACKAGE_SELECT", candidates: action.candidates };
     case "COMPLETE":
       return {
         ...state,
@@ -129,6 +132,15 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
         datasheet: action.datasheet,
         match: action.match,
         pins: action.pins,
+        candidates: action.candidates,
+      };
+    case "SWITCH_PACKAGE":
+      return {
+        ...state,
+        datasheet: action.datasheet,
+        match: action.match,
+        pins: action.pins,
+        selectedPinNumber: null,
       };
     case "UPDATE_PIN": {
       const pins = [...state.pins];

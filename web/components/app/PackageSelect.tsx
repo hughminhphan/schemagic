@@ -26,6 +26,7 @@ export default function PackageSelect() {
         datasheet: data.datasheet,
         match: data.match,
         pins: data.pins,
+        candidates: [],
       });
     } catch (err) {
       dispatch({

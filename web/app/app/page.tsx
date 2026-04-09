@@ -4,7 +4,6 @@ import Nav from "@/components/Nav";
 import { WizardProvider, useWizard } from "@/components/app/WizardProvider";
 import PartInput from "@/components/app/PartInput";
 import StatusStream from "@/components/app/StatusStream";
-import PackageSelect from "@/components/app/PackageSelect";
 import PinReviewVisual from "@/components/app/PinReviewVisual";
 import DownloadPanel from "@/components/app/DownloadPanel";
 
@@ -24,8 +23,6 @@ function WizardRouter() {
 
       <PartInput />
       <StatusStream />
-
-      {state.step === "PACKAGE_SELECT" && <PackageSelect />}
 
       {(state.step === "PIN_REVIEW" || state.step === "GENERATING") && (
         <PinReviewVisual />

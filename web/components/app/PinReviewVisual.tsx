@@ -11,10 +11,11 @@ import PinEditPanel from "./PinEditPanel";
 import PinReviewTable from "./PinReviewTable";
 
 export default function PinReviewVisual() {
-  const { pins, match, datasheet, jobId, selectedPinNumber } = useWizard();
+  const { pins, match, datasheet, jobId, selectedPinNumber, candidates } = useWizard();
   const dispatch = useWizardDispatch();
   const { symbolData, footprintData, loading } = usePinReviewData(match);
   const [showTable, setShowTable] = useState(false);
+  const [switchingPackage, setSwitchingPackage] = useState(false);
 
   // Fall back to synthetic symbol when no library match
   const effectiveSymbolData = symbolData ?? generateSyntheticSymbol(pins);
@@ -125,6 +126,33 @@ export default function PinReviewVisual() {
     });
   }
 
+  async function handlePackageSwitch(packageName: string) {
+    const candidate = candidates.find((c) => c.name === packageName);
+    if (!candidate || switchingPackage) return;
+    setSwitchingPackage(true);
+    try {
+      const res = await fetch(`${apiBase()}/api/select-package`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: jobId, package: candidate }),
+      });
+      const data = await res.json();
+      dispatch({
+        type: "SWITCH_PACKAGE",
+        datasheet: data.datasheet,
+        match: data.match,
+        pins: data.pins,
+      });
+    } catch (err) {
+      dispatch({
+        type: "ERROR",
+        message: err instanceof Error ? err.message : "Package switch failed",
+      });
+    } finally {
+      setSwitchingPackage(false);
+    }
+  }
+
   async function handleGenerate() {
     dispatch({ type: "START_GENERATE" });
 
@@ -194,9 +222,24 @@ export default function PinReviewVisual() {
               <p className="font-mono text-xs text-text-secondary uppercase tracking-wider">
                 Package
               </p>
-              <p className="mt-1 text-sm">
-                {datasheet.package.name} ({datasheet.package.pin_count} pins)
-              </p>
+              {candidates.length > 1 ? (
+                <select
+                  value={datasheet.package.name}
+                  onChange={(e) => handlePackageSwitch(e.target.value)}
+                  disabled={switchingPackage}
+                  className="mt-1 text-sm bg-surface-raised border border-border px-2 py-1 text-text-primary focus:outline-none focus:border-accent"
+                >
+                  {candidates.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name} ({c.pin_count} pins)
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="mt-1 text-sm">
+                  {datasheet.package.name} ({datasheet.package.pin_count} pins)
+                </p>
+              )}
             </div>
           )}
         </div>

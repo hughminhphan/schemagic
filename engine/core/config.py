@@ -38,7 +38,7 @@ INDEX_CACHE = os.path.join(CACHE_DIR, "library_index.json")
 # TI package-suffix stripping
 TI_SUFFIXES = [
     "DDCR", "DDC", "DDWR", "DDW", "DRCR", "DRC", "DGKR", "DGK",
-    "RGER", "RGE", "RGTR", "RGT", "RGYR", "RGY", "PWPR", "PWP",
+    "RGER", "RGE", "RGTR", "RGT", "RGYR", "RGY", "PWPR", "PWP", "PWR", "PW",
     "DSGR", "DSG", "DCKR", "DCK", "DBVR", "DBV", "QDRR", "QDR",
     "RSAR", "RSA", "DGSR", "DGS", "RTER", "RTE", "YZFR", "YZF",
     "YFFR", "YFF", "RHAR", "RHA", "RHBR", "RHB", "DADR", "DAD",
@@ -90,6 +90,7 @@ PACKAGE_MAP = {
     "DRV": "Package_SON:WSON-6-1EP_2x2mm_P0.65mm_EP1x1.6mm",
     "DGN": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
     "DSG": "Package_TO_SOT_SMD:SOT-23-5",
+    "PW": "Package_SO:TSSOP-16_4.4x5mm_P0.65mm",
     "PWP": "Package_SO:HTSSOP-16-1EP_4.4x5mm_P0.65mm_EP3.4x5mm",
     "DDW": "Package_SO:HTSSOP-44-1EP_6.1x14mm_P0.635mm_EP5.2x14mm_Mask4.31x8.26mm",
     "DAD": "Package_SO:HTSSOP-32-1EP_6.1x11mm_P0.65mm_EP5.2x11mm_Mask4.11x4.36mm",
