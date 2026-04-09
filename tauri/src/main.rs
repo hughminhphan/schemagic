@@ -214,7 +214,14 @@ fn main() {
             let handle = app.handle().clone();
 
             // Start the Python sidecar
-            let sidecar_state = sidecar::start_sidecar(&handle)?;
+            let sidecar_state = match sidecar::start_sidecar(&handle) {
+                Ok(state) => state,
+                Err(e) => {
+                    eprintln!("Failed to start sidecar: {}", e);
+                    eprintln!("Make sure you've built the sidecar first: ./scripts/build-sidecar-macos.sh");
+                    return Err(e);
+                }
+            };
             let port = sidecar_state.port;
             app.manage(Mutex::new(sidecar_state));
 
@@ -249,7 +256,7 @@ fn main() {
             TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
                 .menu(&menu)
-                .menu_on_left_click(false)
+                .show_menu_on_left_click(false)
                 .tooltip("scheMAGIC")
                 .on_tray_icon_event(move |_tray, event| {
                     if let TrayIconEvent::Click {

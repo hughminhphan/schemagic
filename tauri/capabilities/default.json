@@ -13,7 +13,7 @@
       "identifier": "shell:allow-execute",
       "allow": [
         {
-          "name": "sidecar/schemagic-server",
+          "name": "binaries/schemagic-server",
           "sidecar": true,
           "args": true
         }

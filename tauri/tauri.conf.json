@@ -5,9 +5,9 @@
   "identifier": "com.schemagic.app",
   "build": {
     "frontendDist": "../web/out",
-    "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "cd ../web && npm run dev",
-    "beforeBuildCommand": "cd ../web && npm run build"
+    "devUrl": "http://localhost:3001",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
   },
   "app": {
     "windows": [
@@ -43,7 +43,7 @@
       "icons/icon.ico"
     ],
     "externalBin": [
-      "sidecar/schemagic-server"
+      "binaries/schemagic-server"
     ],
     "macOS": {
       "minimumSystemVersion": "10.15"

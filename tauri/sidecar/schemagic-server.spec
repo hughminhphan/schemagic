@@ -15,7 +15,8 @@ Build:
 import os
 import sys
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(SPECPATH))))
+# SPECPATH = tauri/sidecar/, go up 2 levels to reach repo root
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(SPECPATH)))
 
 a = Analysis(
     [os.path.join(REPO_ROOT, "server", "main.py")],

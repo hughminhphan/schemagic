@@ -1,80 +1,139 @@
-use tauri::AppHandle;
-use tauri_plugin_shell::process::{CommandChild, CommandEvent};
-use tauri_plugin_shell::ShellExt;
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
+use tauri::{AppHandle, Manager};
 
 pub struct SidecarState {
     pub port: u16,
-    child: Option<CommandChild>,
+    child: Option<Child>,
 }
 
 impl SidecarState {
     pub fn shutdown(&mut self) {
-        if let Some(child) = self.child.take() {
+        if let Some(mut child) = self.child.take() {
             let _ = child.kill();
+            let _ = child.wait();
         }
     }
 }
 
+/// Resolve the sidecar binary path.
+/// In dev mode: next to the Rust binary (target/debug/)
+/// In production: next to the app binary (inside the .app bundle or install dir)
+fn resolve_sidecar_path(app: &AppHandle) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
+    let exe_dir = app
+        .path()
+        .resource_dir()
+        .unwrap_or_else(|_| {
+            std::env::current_exe()
+                .unwrap()
+                .parent()
+                .unwrap()
+                .to_path_buf()
+        });
+
+    let triple = if cfg!(target_os = "macos") {
+        if cfg!(target_arch = "aarch64") {
+            "aarch64-apple-darwin"
+        } else {
+            "x86_64-apple-darwin"
+        }
+    } else if cfg!(target_os = "windows") {
+        "x86_64-pc-windows-msvc"
+    } else {
+        "x86_64-unknown-linux-gnu"
+    };
+
+    let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
+    let binary_name = format!("schemagic-server-{}{}", triple, ext);
+
+    // Try multiple locations
+    let exe_parent = std::env::current_exe()?
+        .parent()
+        .unwrap()
+        .to_path_buf();
+
+    let candidates: Vec<PathBuf> = vec![
+        exe_dir.join("binaries").join(&binary_name),
+        exe_dir.join(&binary_name),
+        exe_parent.join("binaries").join(&binary_name),
+        exe_parent.join(&binary_name),
+    ];
+
+    for path in &candidates {
+        eprintln!("[sidecar] Checking: {:?}", path);
+        if path.exists() {
+            eprintln!("[sidecar] Found at: {:?}", path);
+            return Ok(path.clone());
+        }
+    }
+
+    Err(format!(
+        "Sidecar binary not found. Checked:\n{}",
+        candidates
+            .iter()
+            .map(|p| format!("  - {:?}", p))
+            .collect::<Vec<_>>()
+            .join("\n")
+    )
+    .into())
+}
+
 /// Start the Python sidecar and wait for it to report its port.
 pub fn start_sidecar(app: &AppHandle) -> Result<SidecarState, Box<dyn std::error::Error>> {
-    let sidecar_cmd = app
-        .shell()
-        .sidecar("sidecar/schemagic-server")
-        .map_err(|e| format!("Failed to create sidecar command: {}", e))?
+    let sidecar_path = resolve_sidecar_path(app)?;
+
+    let mut child = Command::new(&sidecar_path)
         .env("SCHEMAGIC_SIDECAR", "1")
         .env("SCHEMAGIC_PORT", "0")
-        .env("SCHEMAGIC_STANDALONE", "1");
-
-    let (mut rx, child) = sidecar_cmd
+        .env("SCHEMAGIC_STANDALONE", "1")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()
-        .map_err(|e| format!("Failed to spawn sidecar: {}", e))?;
+        .map_err(|e| format!("Failed to spawn sidecar at {:?}: {}", sidecar_path, e))?;
 
-    // Read stdout lines until we find the port announcement.
-    // Use a blocking approach since we're in setup() before the event loop starts.
-    let port = tauri::async_runtime::block_on(async {
-        let mut port: u16 = 0;
-        // Give it up to 30 seconds to start
-        let deadline = tokio::time::Instant::now() + tokio::time::Duration::from_secs(30);
+    // Read stdout for the port announcement
+    let stdout = child.stdout.take().ok_or("No stdout from sidecar")?;
+    let reader = BufReader::new(stdout);
+    let mut port: u16 = 0;
 
-        loop {
-            let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
-            if remaining.is_zero() {
-                break;
+    // Spawn stderr reader in background
+    if let Some(stderr) = child.stderr.take() {
+        std::thread::spawn(move || {
+            let reader = BufReader::new(stderr);
+            for line in reader.lines() {
+                if let Ok(line) = line {
+                    eprintln!("[sidecar stderr] {}", line);
+                }
             }
+        });
+    }
 
-            match tokio::time::timeout(remaining, rx.recv()).await {
-                Ok(Some(CommandEvent::Stdout(line_bytes))) => {
-                    let line = String::from_utf8_lossy(&line_bytes);
-                    if let Some(port_str) = line.trim().strip_prefix("SCHEMAGIC_PORT:") {
-                        if let Ok(p) = port_str.parse::<u16>() {
-                            port = p;
-                            break;
-                        }
-                    }
-                }
-                Ok(Some(CommandEvent::Stderr(line_bytes))) => {
-                    let line = String::from_utf8_lossy(&line_bytes);
-                    eprintln!("[sidecar stderr] {}", line.trim());
-                }
-                Ok(Some(_)) => {}
-                Ok(None) => {
-                    // Channel closed - sidecar exited
-                    break;
-                }
-                Err(_) => {
-                    // Timeout
+    // Read lines with a timeout
+    let start = std::time::Instant::now();
+    let timeout = std::time::Duration::from_secs(30);
+
+    for line in reader.lines() {
+        if start.elapsed() > timeout {
+            break;
+        }
+        if let Ok(line) = line {
+            eprintln!("[sidecar stdout] {}", line);
+            if let Some(port_str) = line.trim().strip_prefix("SCHEMAGIC_PORT:") {
+                if let Ok(p) = port_str.parse::<u16>() {
+                    port = p;
                     break;
                 }
             }
         }
-        port
-    });
-
-    if port == 0 {
-        return Err("Sidecar failed to start or report its port within 30 seconds".into());
     }
 
-    log::info!("Sidecar started on port {}", port);
+    if port == 0 {
+        let _ = child.kill();
+        return Err("Sidecar failed to report its port within 30 seconds".into());
+    }
+
+    eprintln!("[sidecar] Started on port {}", port);
 
     Ok(SidecarState {
         port,

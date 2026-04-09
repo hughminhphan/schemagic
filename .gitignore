@@ -37,3 +37,9 @@ web/.vercel/
 .ralph/live.log
 .ralph/
 .vercel
+
+# Sidecar build
+.venv-sidecar/
+tauri/sidecar/schemagic-server-*
+tauri/binaries/schemagic-server-*
+tauri/target/

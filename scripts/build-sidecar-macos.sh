@@ -3,9 +3,36 @@ set -euo pipefail
 
 # Build the scheMAGIC Python sidecar for macOS.
 # Produces tauri/sidecar/schemagic-server-{arch}-apple-darwin
+#
+# Requires a framework Python (Homebrew). PlatformIO/pyenv static builds won't work.
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
+
+# Use Homebrew Python (framework build required by PyInstaller on macOS)
+PYTHON=""
+for candidate in /opt/homebrew/bin/python3.12 /opt/homebrew/bin/python3.11 /usr/local/bin/python3; do
+    if [ -x "$candidate" ]; then
+        PYTHON="$candidate"
+        break
+    fi
+done
+
+if [ -z "$PYTHON" ]; then
+    echo "ERROR: No Homebrew/framework Python found. Install with: brew install python@3.12"
+    exit 1
+fi
+
+echo "==> Using Python: $PYTHON ($($PYTHON --version))"
+
+# Create/reuse a venv for sidecar builds
+VENV_DIR="$REPO_ROOT/.venv-sidecar"
+if [ ! -d "$VENV_DIR" ]; then
+    echo "==> Creating sidecar build venv..."
+    "$PYTHON" -m venv "$VENV_DIR"
+fi
+
+source "$VENV_DIR/bin/activate"
 
 echo "==> Installing sidecar build dependencies..."
 pip install --quiet pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi

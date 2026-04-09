@@ -59,7 +59,8 @@ def _resolve_port() -> int:
     return port
 
 
-if __name__ == "__main__":
+def _start_server():
+    """Start the uvicorn server. Called from __main__ or sidecar mode."""
     import uvicorn
 
     port = _resolve_port()
@@ -69,3 +70,7 @@ if __name__ == "__main__":
         print(f"SCHEMAGIC_PORT:{port}", flush=True)
 
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
+
+
+if __name__ == "__main__" or os.environ.get("SCHEMAGIC_SIDECAR"):
+    _start_server()
