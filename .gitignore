@@ -43,3 +43,4 @@ web/.vercel/
 tauri/sidecar/schemagic-server-*
 tauri/binaries/schemagic-server-*
 tauri/target/
+tauri/gen/
