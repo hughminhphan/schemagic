@@ -216,20 +216,34 @@ def _fix_corrupted_dylibs(app_path: str):
 
 
 def codesign_app(app_path: str, identity: str):
-    """Sign the .app bundle using --deep."""
+    """Sign the .app bundle, handling embedded frameworks correctly."""
     label = "ad-hoc" if identity == "-" else identity
     print(f"\n[2/4] Code signing ({label})...")
 
     # Fix dylibs corrupted by py2app
     _fix_corrupted_dylibs(app_path)
 
-    # Sign the entire bundle with --deep
-    cmd = ["codesign", "--force", "--deep", "--sign", identity]
+    sign_cmd = ["codesign", "--force", "--sign", identity]
     if identity != "-":
-        cmd += ["--options", "runtime"]
-    cmd.append(app_path)
+        sign_cmd += ["--options", "runtime"]
 
-    subprocess.run(cmd, check=True)
+    # Sign all .so and .dylib files individually first
+    for dirpath, _, filenames in os.walk(app_path):
+        for f in filenames:
+            if f.endswith((".so", ".dylib")):
+                fpath = os.path.join(dirpath, f)
+                subprocess.run(sign_cmd + [fpath], capture_output=True)
+
+    # Sign embedded frameworks before the app bundle
+    frameworks_dir = os.path.join(app_path, "Contents", "Frameworks")
+    if os.path.isdir(frameworks_dir):
+        for item in os.listdir(frameworks_dir):
+            item_path = os.path.join(frameworks_dir, item)
+            if item.endswith(".framework"):
+                subprocess.run(sign_cmd + [item_path], capture_output=True)
+
+    # Sign the top-level app bundle
+    subprocess.run(sign_cmd + [app_path], check=True)
     print("  Signed successfully")
 
 
