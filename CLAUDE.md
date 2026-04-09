@@ -1,6 +1,6 @@
 # scheMAGIC
 
-Paste a datasheet PDF, get a perfect KiCad symbol + footprint. $5 AUD/month.
+Type a part number, get a perfect KiCad symbol + footprint. $5 AUD/month.
 
 ## Architecture
 
