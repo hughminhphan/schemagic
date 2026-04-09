@@ -1,12 +1,13 @@
 import os
 import shutil
+import tempfile
 import threading
 import time
 import uuid
 import queue
 
 
-TEMP_BASE = "/tmp/schemagic"
+TEMP_BASE = os.path.join(tempfile.gettempdir(), "schemagic")
 JOB_TTL = 1800  # 30 minutes
 
 

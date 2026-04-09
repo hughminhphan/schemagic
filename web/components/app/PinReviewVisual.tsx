@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
 import { usePinReviewData } from "@/hooks/usePinReviewData";
 import { generateSyntheticSymbol } from "@/lib/generate-synthetic-symbol";
+import { apiBase } from "@/lib/api-base";
 import SymbolViewer from "./SymbolViewer";
 import FootprintViewer from "./FootprintViewer";
 import PinEditPanel from "./PinEditPanel";
@@ -128,7 +129,7 @@ export default function PinReviewVisual() {
     dispatch({ type: "START_GENERATE" });
 
     try {
-      const res = await fetch("/api/finalize", {
+      const res = await fetch(`${apiBase()}/api/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ job_id: jobId, pins }),

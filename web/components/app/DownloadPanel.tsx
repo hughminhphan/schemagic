@@ -3,6 +3,7 @@
 import { useState } from "react";
 import JSZip from "jszip";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
+import { apiBase } from "@/lib/api-base";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -26,7 +27,7 @@ export default function DownloadPanel() {
 
       await Promise.all(
         files.map(async (f) => {
-          const res = await fetch(`/api/download/${jobId}/${f.filename}`);
+          const res = await fetch(`${apiBase()}/api/download/${jobId}/${f.filename}`);
           const blob = await res.blob();
           folder.file(f.filename, blob);
         })

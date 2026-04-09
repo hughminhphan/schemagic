@@ -1,6 +1,7 @@
 "use client";
 
 import { useWizard, useWizardDispatch } from "./WizardProvider";
+import { apiBase } from "@/lib/api-base";
 
 export default function PackageSelect() {
   const { candidates, jobId } = useWizard();
@@ -10,7 +11,7 @@ export default function PackageSelect() {
     dispatch({ type: "ADD_LOG", message: `Selected package: ${candidate.name}` });
 
     try {
-      const res = await fetch("/api/select-package", {
+      const res = await fetch(`${apiBase()}/api/select-package`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

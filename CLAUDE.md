@@ -4,26 +4,27 @@ Paste a datasheet PDF, get a perfect KiCad symbol + footprint. $5 AUD/month.
 
 ## Architecture
 
-Three folders, three concerns:
-
 ```
 schemagic/
-├── engine/      # Core pipeline (shared by plugin + server)
-├── plugin/      # macOS menubar app - THE PRODUCT ($5/month)
-├── server/      # FastAPI API - powers the webapp demo only
-└── web/         # Next.js landing page + one-free-try demo
+├── engine/      # Core pipeline (shared by all frontends)
+├── tauri/       # Tauri v2 desktop shell - THE PRODUCT ($5/month, macOS + Windows)
+├── server/      # FastAPI API - runs as Tauri sidecar + powers webapp demo
+├── web/         # React frontend (shared by Tauri desktop + Next.js demo site)
+├── plugin/      # [LEGACY] wxPython macOS-only menubar app - being replaced by tauri/
+└── scripts/     # Build scripts for sidecar + CI
 ```
 
-**The plugin is the product.** The webapp is just a demo that lets people try it once before downloading. All development effort goes into `engine/` and `plugin/`.
+**Tauri desktop app is the product.** The webapp at schemagic.design is a free demo. The Tauri shell launches the FastAPI server as a sidecar (PyInstaller binary), and the web/ React frontend runs in the Tauri webview.
 
 ## Which folder to edit
 
 | Task | Folder |
 |------|--------|
 | Fix parsing, extraction, generation | `engine/` |
-| Fix the app UI, hotkey, menubar | `plugin/` |
-| Fix the demo API | `server/` |
-| Fix the landing page or demo frontend | `web/` |
+| Fix the desktop app shell, tray, hotkey | `tauri/` |
+| Fix the API endpoints | `server/` |
+| Fix the UI (desktop + web) | `web/` |
+| [LEGACY] wxPython menubar app | `plugin/` (frozen, being replaced) |
 
 ## Engine structure
 
@@ -56,26 +57,41 @@ python -m pytest engine/tests/test_edge_cases.py -v    # 563 unit tests
 python engine/tests/test_harness.py --strict            # 35/42 integration tests
 ```
 
-## Running the demo locally
+## Running the desktop app (Tauri dev mode)
+
+```bash
+# Requires: Rust toolchain + Tauri CLI v2
+# First build the sidecar:
+./scripts/build-sidecar-macos.sh
+
+# Then run the Tauri app in dev mode:
+cd tauri && cargo tauri dev
+```
+
+## Running the web demo locally
 
 ```bash
 # Terminal 1: FastAPI backend
-cd schemagic && uvicorn server.main:app --reload --port 8000
+cd schemagic && python server/main.py
+# Or: uvicorn server.main:app --reload --port 8000
 
 # Terminal 2: Next.js frontend
 cd schemagic/web && npm run dev
 ```
 
-## Running the menubar app
+## Building for distribution
+
+```bash
+# Build sidecar + Tauri app:
+./scripts/build-sidecar-macos.sh
+cd tauri && cargo tauri build
+# Output: tauri/target/release/bundle/dmg/scheMAGIC_*.dmg
+```
+
+## Running the legacy menubar app
 
 ```bash
 python plugin/app.py
-```
-
-## Building the .dmg
-
-```bash
-python plugin/build_dmg.py
 ```
 
 ## Critical gotchas
@@ -89,10 +105,11 @@ python plugin/build_dmg.py
 ## What NOT to do
 
 - Don't add ERC/electrical rule checking - it was removed intentionally
-- Don't add KiCad ActionPlugin registration - the app is menubar-only
-- Don't add wxPython standalone launcher - replaced by menubar app
+- Don't add KiCad ActionPlugin registration - the app is a Tauri desktop app
 - Don't reference `ds2kicad` anywhere - the project is scheMAGIC
 - Don't edit `engine/` imports to absolute - they use relative `..` imports within the package
+- Don't add new wxPython code to `plugin/` - it's frozen, all new UI goes in `web/`
+- Don't hardcode API URLs in web/ - use `apiBase()` from `web/lib/api-base.ts`
 
 ## Environment variable
 

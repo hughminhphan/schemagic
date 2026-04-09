@@ -2,6 +2,7 @@
 
 import { useState, useRef, type FormEvent, type DragEvent } from "react";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
+import { apiBase } from "@/lib/api-base";
 
 export default function PartInput() {
   const [file, setFile] = useState<File | null>(null);
@@ -45,7 +46,7 @@ export default function PartInput() {
       const formData = new FormData();
       formData.append("datasheet", file);
 
-      const res = await fetch("/api/run", {
+      const res = await fetch(`${apiBase()}/api/run`, {
         method: "POST",
         body: formData,
       });
@@ -65,8 +66,7 @@ export default function PartInput() {
 
       dispatch({ type: "START_RUN", jobId, partNumber: file.name.replace(/\.pdf$/i, "") });
 
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const sseRes = await fetch(`${apiBase}/api/status/${jobId}`);
+      const sseRes = await fetch(`${apiBase()}/api/status/${jobId}`);
       if (!sseRes.ok || !sseRes.body) {
         dispatch({ type: "ERROR", message: "Failed to connect to status stream" });
         return;

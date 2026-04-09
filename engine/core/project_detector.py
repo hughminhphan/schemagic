@@ -11,6 +11,10 @@ def _kicad_config_paths():
     if sys.platform == "darwin":
         paths.append(os.path.expanduser(
             "~/Library/Preferences/kicad/8.0/kicad.json"))
+    elif sys.platform == "win32":
+        appdata = os.environ.get("APPDATA", "")
+        if appdata:
+            paths.append(os.path.join(appdata, "kicad", "8.0", "kicad.json"))
     # Linux / fallback
     paths.append(os.path.expanduser("~/.config/kicad/8.0/kicad.json"))
     return paths

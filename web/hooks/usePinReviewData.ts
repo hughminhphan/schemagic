@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { MatchResult } from "@/components/app/WizardProvider";
 import type { LibraryItemPayload } from "@/lib/kicad-render-types";
+import { apiBase } from "@/lib/api-base";
 
 async function fetchLibraryItem(
   kind: string,
@@ -9,7 +10,7 @@ async function fetchLibraryItem(
 ): Promise<LibraryItemPayload | null> {
   try {
     const params = new URLSearchParams({ kind, lib, name });
-    const res = await fetch(`/api/library-item?${params}`);
+    const res = await fetch(`${apiBase()}/api/library-item?${params}`);
     if (!res.ok) return null;
     const data = await res.json();
     return data.found ? data : null;

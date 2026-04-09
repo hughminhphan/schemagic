@@ -1,5 +1,6 @@
 import sys
 import os
+import socket
 from contextlib import asynccontextmanager
 
 os.environ["SCHEMAGIC_STANDALONE"] = "1"
@@ -13,7 +14,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from server.job_store import JobStore
-from server.routes import pipeline, files, library
+from server.routes import pipeline, files, library, kicad_project
 
 
 @asynccontextmanager
@@ -29,6 +30,8 @@ _default_origins = [
     "http://localhost:3000",
     "https://schemagic.design",
     "https://www.schemagic.design",
+    "tauri://localhost",
+    "https://tauri.localhost",
 ]
 _origins = os.environ.get("ALLOWED_ORIGINS", "").split(",") if os.environ.get("ALLOWED_ORIGINS") else _default_origins
 
@@ -43,3 +46,26 @@ app.add_middleware(
 app.include_router(pipeline.router, prefix="/api")
 app.include_router(files.router, prefix="/api")
 app.include_router(library.router, prefix="/api")
+app.include_router(kicad_project.router, prefix="/api")
+
+
+def _resolve_port() -> int:
+    """Determine the server port. SCHEMAGIC_PORT=0 picks a random free port."""
+    port = int(os.environ.get("SCHEMAGIC_PORT", "8000"))
+    if port == 0:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1", 0))
+            port = s.getsockname()[1]
+    return port
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    port = _resolve_port()
+
+    # Signal port to Tauri parent process via stdout
+    if os.environ.get("SCHEMAGIC_SIDECAR"):
+        print(f"SCHEMAGIC_PORT:{port}", flush=True)
+
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
