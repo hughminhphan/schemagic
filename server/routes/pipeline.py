@@ -3,10 +3,9 @@ import json
 import logging
 import os
 import threading
-import tempfile
 import dataclasses
 
-from fastapi import APIRouter, HTTPException, Request, UploadFile, File
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from server.schemas import (
@@ -157,24 +156,13 @@ def _run_pipeline_thread(job_id: str, part_number: str, jobs: JobStore, local_pd
 
 
 @router.post("/run", response_model=RunResponse)
-async def run_pipeline(request: Request, datasheet: UploadFile = File(...)):
+async def run_pipeline(req: RunRequest, request: Request):
     jobs = _get_jobs(request)
     job_id = jobs.create()
 
-    # Save uploaded PDF to a temp file
-    tmp_dir = tempfile.mkdtemp(prefix="schemagic_")
-    pdf_path = os.path.join(tmp_dir, datasheet.filename or "datasheet.pdf")
-    content = await datasheet.read()
-    with open(pdf_path, "wb") as f:
-        f.write(content)
-
-    # Derive part number from filename (strip .pdf extension)
-    part_number = os.path.splitext(datasheet.filename or "unknown")[0]
-
     thread = threading.Thread(
         target=_run_pipeline_thread,
-        args=(job_id, part_number, jobs),
-        kwargs={"local_pdf": pdf_path},
+        args=(job_id, req.part_number, jobs),
         daemon=True,
     )
     thread.start()
