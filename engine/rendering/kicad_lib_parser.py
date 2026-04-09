@@ -18,7 +18,7 @@ _sexpr = None
 def _get_sexpr():
     global _sexpr
     if _sexpr is None:
-        from generation import sexpr as _mod
+        from engine.generation import sexpr as _mod
         _sexpr = _mod
     return _sexpr
 

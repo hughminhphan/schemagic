@@ -1,11 +1,7 @@
 # Core engine
 pdfplumber>=0.10.0
 
-# Server (demo API)
+# Server (API + Tauri sidecar)
 fastapi>=0.100.0
 uvicorn>=0.20.0
-
-# Plugin (macOS menubar app)
-wxPython>=4.2.0
-pyobjc-framework-Cocoa>=9.0
-py2app>=0.28.0
+python-multipart>=0.0.6

@@ -45,9 +45,9 @@ fn resolve_sidecar_path(app: &AppHandle) -> Result<std::path::PathBuf, Box<dyn s
     };
 
     let ext = if cfg!(target_os = "windows") { ".exe" } else { "" };
-    let binary_name = format!("schemagic-server-{}{}", triple, ext);
+    let name_with_triple = format!("schemagic-server-{}{}", triple, ext);
+    let name_plain = format!("schemagic-server{}", ext);
 
-    // Try multiple locations
     let exe_parent = std::env::current_exe()?
         .parent()
         .unwrap()
@@ -57,13 +57,15 @@ fn resolve_sidecar_path(app: &AppHandle) -> Result<std::path::PathBuf, Box<dyn s
     let dev_sidecar_dir = exe_parent.join("../../sidecar");
 
     let candidates: Vec<PathBuf> = vec![
-        // Production: bundled next to the app binary
-        exe_dir.join("binaries").join(&binary_name),
-        exe_dir.join(&binary_name),
-        exe_parent.join("binaries").join(&binary_name),
-        exe_parent.join(&binary_name),
-        // Dev mode: in the tauri/sidecar/ directory (original PyInstaller output)
-        dev_sidecar_dir.join(&binary_name),
+        // Production (.app bundle): Tauri strips the triple suffix, binary sits next to app
+        exe_parent.join(&name_plain),
+        // Production with subdirectory
+        exe_dir.join(&name_plain),
+        // Dev mode with triple suffix
+        exe_parent.join("binaries").join(&name_with_triple),
+        exe_parent.join(&name_with_triple),
+        // Dev mode: original PyInstaller output in tauri/sidecar/
+        dev_sidecar_dir.join(&name_with_triple),
     ];
 
     for path in &candidates {

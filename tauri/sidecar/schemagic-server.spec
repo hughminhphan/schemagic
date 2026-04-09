@@ -56,11 +56,10 @@ a = Analysis(
         "server.routes.files",
         "server.routes.library",
         "server.routes.kicad_project",
-        # Plugin shared module (used by server/routes/library.py)
-        "plugin",
-        "plugin.ui",
-        "plugin.ui.kicad_lib_parser",
-        "plugin.ui.kicad_render_data",
+        # Rendering module (shared between server and Tauri)
+        "engine.rendering",
+        "engine.rendering.kicad_lib_parser",
+        "engine.rendering.kicad_render_data",
         # PDF parsing
         "pdfplumber",
         "pdfminer",

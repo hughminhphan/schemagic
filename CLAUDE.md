@@ -10,7 +10,6 @@ schemagic/
 ├── tauri/       # Tauri v2 desktop shell - THE PRODUCT ($5/month, macOS + Windows)
 ├── server/      # FastAPI API - runs as Tauri sidecar + powers webapp demo
 ├── web/         # React frontend (shared by Tauri desktop + Next.js demo site)
-├── plugin/      # [LEGACY] wxPython macOS-only menubar app - frozen, being replaced
 └── scripts/     # Build scripts for sidecar + CI
 ```
 
@@ -47,7 +46,6 @@ Key files:
 | Fix the desktop app shell, tray, hotkey | `tauri/` |
 | Fix the API endpoints | `server/` |
 | Fix the UI (desktop + web) | `web/` |
-| [LEGACY] wxPython menubar app | `plugin/` (frozen) |
 
 ## Engine structure
 
@@ -69,7 +67,9 @@ engine/
 ├── generation/library_manager.py # Save to project (schemagic.kicad_sym + schemagic.pretty/)
 ├── matching/library_index.py # KiCad lib scanner (~21,700 symbols, ~14,200 footprints)
 ├── matching/symbol_matcher.py # 5-strategy symbol matching cascade
-└── matching/footprint_matcher.py # Package-based footprint matching
+├── matching/footprint_matcher.py # Package-based footprint matching
+├── rendering/kicad_lib_parser.py # Parse .kicad_sym/.kicad_mod to render data (shared with web)
+└── rendering/kicad_render_data.py # Dataclasses for render payloads
 ```
 
 ## Running tests
@@ -145,7 +145,6 @@ cd tauri && cargo tauri build
 - Don't add KiCad ActionPlugin registration - the app is a Tauri desktop app
 - Don't reference `ds2kicad` anywhere - the project is scheMAGIC
 - Don't edit `engine/` imports to absolute - they use relative `..` imports within the package
-- Don't add new wxPython code to `plugin/` - it's frozen, all new UI goes in `web/`
 - Don't hardcode API URLs in web/ - use `apiBase()` from `web/lib/api-base.ts`
 - Don't use PlatformIO Python for PyInstaller builds - needs Homebrew framework Python
 

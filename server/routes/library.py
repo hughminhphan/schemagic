@@ -12,7 +12,7 @@ from server.schemas import (
     BoundingBox, FootprintPad, GraphicItem, LibraryItemPayload, SymbolPin,
 )
 from engine.core.config import FOOTPRINT_DIR, SYMBOL_DIR
-from plugin.ui.kicad_lib_parser import parse_symbol_file, parse_footprint_file
+from engine.rendering.kicad_lib_parser import parse_symbol_file, parse_footprint_file
 
 router = APIRouter()
 

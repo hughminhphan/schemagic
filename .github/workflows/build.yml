@@ -1,0 +1,105 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2"
+
+      - name: Build Python sidecar
+        run: |
+          pip install pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi
+          pyinstaller tauri/sidecar/schemagic-server.spec \
+            --distpath tauri/sidecar \
+            --workpath /tmp/schemagic-pyinstaller \
+            --noconfirm
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            arm64) TRIPLE="aarch64-apple-darwin" ;;
+            x86_64) TRIPLE="x86_64-apple-darwin" ;;
+          esac
+          mv "tauri/sidecar/schemagic-server" "tauri/sidecar/schemagic-server-${TRIPLE}"
+          mkdir -p tauri/binaries
+          cp "tauri/sidecar/schemagic-server-${TRIPLE}" "tauri/binaries/"
+
+      - name: Build frontend
+        run: cd web && npm ci && npm run build
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_PATH: ${{ secrets.APPLE_API_KEY_PATH }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          projectPath: tauri
+          tagName: ${{ github.ref_name }}
+          releaseName: "scheMAGIC ${{ github.ref_name }}"
+          releaseBody: "See the assets for download links."
+          releaseDraft: true
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2"
+
+      - name: Build Python sidecar
+        run: |
+          pip install pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi
+          pyinstaller tauri/sidecar/schemagic-server.spec --distpath tauri/sidecar --workpath C:\Temp\schemagic-pyinstaller --noconfirm
+          Rename-Item "tauri\sidecar\schemagic-server.exe" "schemagic-server-x86_64-pc-windows-msvc.exe"
+          New-Item -ItemType Directory -Force -Path "tauri\binaries"
+          Copy-Item "tauri\sidecar\schemagic-server-x86_64-pc-windows-msvc.exe" "tauri\binaries\"
+        shell: pwsh
+
+      - name: Build frontend
+        run: cd web && npm ci && npm run build
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        with:
+          projectPath: tauri
+          tagName: ${{ github.ref_name }}
+          releaseName: "scheMAGIC ${{ github.ref_name }}"
+          releaseBody: "See the assets for download links."
+          releaseDraft: true
