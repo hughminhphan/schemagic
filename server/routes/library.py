@@ -30,10 +30,10 @@ def _to_pydantic_payload(rp):
     for g in rp.graphics:
         graphics.append(GraphicItem(
             type=g.type, layer=g.layer,
-            start=g.start, end=g.end, mid=g.mid,
-            pts=g.pts, center=g.center, radius=g.radius,
-            at=g.at, angle=g.angle, text=g.text,
-            stroke_width=g.stroke_width, fill=g.fill,
+            start=g.start or [], end=g.end or [], mid=g.mid or [],
+            pts=g.pts or [], center=g.center or [], radius=g.radius or 0.0,
+            at=g.at or [], angle=g.angle or 0.0, text=g.text or "",
+            stroke_width=g.stroke_width or 0.0, fill=g.fill or "",
         ))
 
     pins = []

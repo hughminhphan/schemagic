@@ -71,15 +71,16 @@ def find_component_type(full_text):
     text_lower = full_text.lower()
 
     # Ordered by specificity: more specific types first
+    # MCU must come before ADC/DAC since MCU datasheets mention built-in peripherals
     type_keywords = [
         ("motor_driver", ["h-bridge", "motor driver", "half-bridge", "brushed dc",
                           "stepper driver", "bldc driver"]),
         ("gate_driver", ["gate driver", "mosfet driver"]),
         ("led_driver", ["led driver", "led controller"]),
+        ("mcu", ["microcontroller", "microprocessor"]),
         ("op_amp", ["operational amplifier", "op amp", "opamp"]),
         ("adc", ["analog-to-digital", "analog to digital", "a/d converter"]),
         ("dac", ["digital-to-analog", "digital to analog", "d/a converter"]),
-        ("mcu", ["microcontroller", "microprocessor"]),
         ("power_switch", ["load switch", "power switch", "high-side switch",
                           "low-side switch"]),
         ("voltage regulator", ["step-down", "buck converter", "switching regulator",

@@ -210,6 +210,10 @@ class LibraryIndex:
         # Name starts with query
         elif name.startswith(query):
             score = 80.0
+        # Query starts with name (minus trailing wildcard chars like 'x')
+        # Handles KiCad convention: STM32F103C8Tx matches STM32F103C8T6
+        elif self._wildcard_suffix_match(name, query):
+            score = 85.0
         # Query is contained in name
         elif query in name:
             score = 50.0
@@ -228,6 +232,26 @@ class LibraryIndex:
             score -= 5.0
 
         return score
+
+    @staticmethod
+    def _wildcard_suffix_match(sym_name, query):
+        """Check if a symbol name with wildcard suffix matches the query.
+
+        KiCad uses lowercase 'x' as a wildcard in symbol names, e.g.
+        STM32F103C8Tx matches STM32F103C8T6. Also handles trailing
+        wildcards like ATmega328P-xU matching ATmega328P-AU.
+        """
+        # Strip trailing wildcard chars (x, X) from symbol name to get prefix
+        name = sym_name
+        while name and name[-1] in ("X",):
+            name = name[:-1]
+        if not name or name == sym_name:
+            return False
+        # Query must start with the prefix and be similar length
+        # (allow up to len(wildcards_stripped) extra chars)
+        wildcards = len(sym_name) - len(name)
+        return (query.startswith(name)
+                and len(query) <= len(name) + wildcards + 1)
 
     def search_footprints(self, query, pad_count=0):
         """Search for footprints matching a query string.

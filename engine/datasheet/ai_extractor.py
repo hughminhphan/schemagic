@@ -296,12 +296,24 @@ _TYPE_MAP = {
 }
 
 
+def _sanitize_pin_name(name):
+    """Clean up common pin name artifacts from PDF/Gemini extraction."""
+    # Replace ± with - (common PDF mangling of inverting input names)
+    name = name.replace("\u00b1", "-")
+    # Replace Unicode minus (U+2212) with ASCII hyphen
+    name = name.replace("\u2212", "-")
+    # Replace en-dash with hyphen
+    name = name.replace("\u2013", "-")
+    # Strip leading/trailing whitespace
+    return name.strip()
+
+
 def _parse_pins(pin_data_list):
     """Parse raw pin dicts from Gemini into PinInfo objects."""
     pins = []
     for pin_data in pin_data_list:
         number = str(pin_data.get("number", ""))
-        name = pin_data.get("name", "")
+        name = _sanitize_pin_name(pin_data.get("name", ""))
         if number and name:
             pin_type = _TYPE_MAP.get(
                 pin_data.get("type", "").lower().replace(" ", "_"),

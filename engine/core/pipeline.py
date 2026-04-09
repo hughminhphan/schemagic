@@ -194,8 +194,9 @@ class Pipeline:
         if self._ai_pins and self._ai_pin_package == selected_package.name:
             pins = self._ai_pins
             confidence = 0.9
-        elif self._ai_pins and not self._ai_pin_package:
-            # Initial extraction (no specific package targeted) - use as-is
+        elif (self._ai_pins and not self._ai_pin_package
+              and len(self._ai_pins) == selected_package.pin_count):
+            # Initial extraction matches the selected package pin count - use as-is
             pins = self._ai_pins
             confidence = 0.9
             self._ai_pin_package = selected_package.name
