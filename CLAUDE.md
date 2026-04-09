@@ -13,7 +13,7 @@ schemagic/
 └── scripts/     # Build scripts for sidecar + CI
 ```
 
-**Tauri desktop app is the product.** The webapp at schemagic.design is a free demo. The Tauri shell launches the FastAPI server as a PyInstaller sidecar binary, and the web/ React frontend runs in the Tauri webview as static HTML/JS/CSS.
+**Tauri desktop app is the product.** schemagic.design is the landing/marketing page only (no webapp demo). The Tauri shell launches the FastAPI server as a PyInstaller sidecar binary, and the web/ React frontend runs in the Tauri webview as static HTML/JS/CSS. The wizard UI lives at `/app/` (Tauri loads this via `url: "app/index.html"` in tauri.conf.json). The root `/` is the landing page.
 
 ### How the Tauri app works
 
@@ -99,17 +99,23 @@ cd tauri && cargo run
 
 Note: `cp` corrupts PyInstaller ad-hoc signatures on macOS. Always use symlinks for dev, not copies.
 
-## Running the web demo locally
+## Running the landing page locally
+
+```bash
+cd web && npm run dev
+```
+
+The landing page at `/` is static and doesn't need the backend. To test the wizard UI at `/app/`, also run the FastAPI backend:
 
 ```bash
 # Terminal 1: FastAPI backend
 python server/main.py
 
-# Terminal 2: Next.js frontend (uses rewrite proxy to backend)
+# Terminal 2: Next.js frontend
 cd web && NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 ```
 
-Note: the web demo needs `output: "export"` removed from next.config.ts to use the dev server with rewrites. The static export config is for Tauri only.
+Note: dev mode needs `output: "export"` removed from next.config.ts to use the dev server with rewrites. The static export config is for Tauri only.
 
 ## Building for distribution
 

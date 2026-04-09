@@ -12,6 +12,7 @@
       {
         "label": "main",
         "title": "scheMAGIC",
+        "url": "app/index.html",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
