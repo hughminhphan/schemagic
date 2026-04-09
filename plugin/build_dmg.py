@@ -20,6 +20,9 @@ import tempfile
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD_DIR = "/tmp/schemagic-build"
 VENV_PYTHON = os.path.join(REPO_ROOT, "plugin", ".venv", "bin", "python3")
+VENV_SITE_PACKAGES = os.path.join(
+    REPO_ROOT, "plugin", ".venv", "lib", "python3.12", "site-packages"
+)
 
 
 def parse_args():
@@ -28,6 +31,29 @@ def parse_args():
     parser.add_argument("--notarize", action="store_true", help="Print notarization instructions")
     parser.add_argument("--identity", type=str, help="Codesign identity (default: auto-detect)")
     return parser.parse_args()
+
+
+def _copy_missing_extensions(app_path: str):
+    """Copy top-level C extension .so files that py2app misses.
+
+    py2app discovers packages and modules listed in includes/packages,
+    but misses standalone .so files at the top level of site-packages:
+    - charset_normalizer's mypyc runtime (hash-named .so)
+    - _cffi_backend.so (needed by cryptography, needed by pdfminer)
+
+    This copies all top-level .so files from the venv into the app bundle.
+    """
+    if not os.path.isdir(VENV_SITE_PACKAGES):
+        return
+
+    dest_dir = os.path.join(app_path, "Contents", "Resources", "lib", "python3.12")
+    for f in os.listdir(VENV_SITE_PACKAGES):
+        if f.endswith(".so"):
+            src = os.path.join(VENV_SITE_PACKAGES, f)
+            dst = os.path.join(dest_dir, f)
+            if not os.path.exists(dst):
+                shutil.copy2(src, dst)
+                print(f"  Copied extension: {f}")
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +116,10 @@ def build_app() -> str:
 
     shutil.move(build_dist, final_dist)
     app_path = os.path.join(final_dist, "scheMAGIC.app")
+
+    # Copy top-level .so extensions that py2app misses
+    _copy_missing_extensions(app_path)
+
     print(f"  Build complete: {app_path} ({_dir_size(app_path):.1f} MB)")
 
     shutil.rmtree(BUILD_DIR, ignore_errors=True)
@@ -120,27 +150,46 @@ def _resolve_signing_identity() -> str:
 
 
 def _fix_corrupted_dylibs(app_path: str):
-    """Replace dylibs corrupted by py2app with clean system copies.
+    """Replace dylibs/shared libs corrupted by py2app with clean copies.
 
-    py2app sometimes produces dylibs with invalid Mach-O structure
-    (trailing data or truncated LINKEDIT segments) that codesign rejects.
-    We find these by attempting to sign them and replacing failures with
-    the original library from Homebrew or the system.
+    py2app sometimes produces dylibs and .so extensions with invalid Mach-O
+    structure (trailing data or truncated LINKEDIT segments) that cause
+    codesign failures or dlopen errors at runtime.
+
+    Scans both Contents/Frameworks/*.dylib AND all .so/.dylib files under
+    Contents/Resources/lib/ (where Python C extensions live).
     """
-    frameworks_dir = os.path.join(app_path, "Contents", "Frameworks")
-    if not os.path.isdir(frameworks_dir):
-        return
+    venv_site_packages = os.path.join(
+        REPO_ROOT, "plugin", ".venv", "lib"
+    )
 
     search_paths = [
         "/opt/homebrew/lib",
         "/usr/lib",
         "/opt/homebrew/Cellar",
     ]
+    # Add venv site-packages as the primary search path for Python extensions
+    if os.path.isdir(venv_site_packages):
+        search_paths.insert(0, venv_site_packages)
 
-    for f in os.listdir(frameworks_dir):
-        if not f.endswith(".dylib"):
-            continue
-        fpath = os.path.join(frameworks_dir, f)
+    # Collect all .dylib and .so files from Frameworks and Resources/lib
+    targets = []
+
+    frameworks_dir = os.path.join(app_path, "Contents", "Frameworks")
+    if os.path.isdir(frameworks_dir):
+        for f in os.listdir(frameworks_dir):
+            if f.endswith(".dylib"):
+                targets.append(os.path.join(frameworks_dir, f))
+
+    resources_lib = os.path.join(app_path, "Contents", "Resources", "lib")
+    if os.path.isdir(resources_lib):
+        for dirpath, _, filenames in os.walk(resources_lib):
+            for f in filenames:
+                if f.endswith((".so", ".dylib")):
+                    targets.append(os.path.join(dirpath, f))
+
+    for fpath in targets:
+        fname = os.path.basename(fpath)
         # Test if codesign works
         r = subprocess.run(
             ["codesign", "--force", "--sign", "-", fpath],
@@ -151,8 +200,8 @@ def _fix_corrupted_dylibs(app_path: str):
 
         # Find a clean copy
         result = subprocess.run(
-            ["find"] + search_paths + ["-name", f, "-type", "f"],
-            capture_output=True, text=True, timeout=10,
+            ["find"] + search_paths + ["-name", fname, "-type", "f"],
+            capture_output=True, text=True, timeout=30,
         )
         for candidate in result.stdout.strip().splitlines():
             if candidate and os.path.isfile(candidate):
@@ -162,7 +211,7 @@ def _fix_corrupted_dylibs(app_path: str):
                     capture_output=True, text=True,
                 )
                 if r2.returncode == 0:
-                    print(f"  Fixed corrupted {f}")
+                    print(f"  Fixed corrupted {fname}")
                     break
 
 

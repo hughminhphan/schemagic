@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-VERSION="0.1.0"
-DMG_URL="https://github.com/hughminhphan/schemagic-webapp/releases/download/v${VERSION}/scheMAGIC.dmg"
+VERSION="0.1.1"
+DMG_URL="https://github.com/hughminhphan/schemagic/releases/download/v${VERSION}/scheMAGIC.dmg"
 APP_NAME="scheMAGIC.app"
 
 # Colours

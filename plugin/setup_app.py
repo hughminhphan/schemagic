@@ -10,7 +10,7 @@ import sys
 
 from setuptools import setup
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 # Add repo root so engine/ and plugin/ are importable
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -70,8 +70,14 @@ OPTIONS = {
     "includes": SCHEMAGIC_MODULES + [
         "wx", "wx.adv", "wx.grid",
         "objc", "Cocoa", "Quartz",
-        "pdfplumber",
         "json", "threading", "traceback",
+    ],
+    "packages": [
+        "pdfplumber",
+        "pdfminer",
+        "charset_normalizer",
+        "cryptography",
+        "cffi",
     ],
     "excludes": [
         "fastapi", "uvicorn", "starlette",
