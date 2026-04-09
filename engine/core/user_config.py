@@ -13,14 +13,8 @@ CONFIG_DIR = os.path.expanduser("~/.schemagic")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 _DEFAULTS = {
-    "ai_provider": "gemini",       # "gemini", "openai", "anthropic", or "none"
     "gemini_api_key": "",
-    "openai_api_key": "",
-    "anthropic_api_key": "",
     "gemini_model": "gemini-2.5-flash-lite",
-    "openai_model": "gpt-4o-mini",
-    "anthropic_model": "claude-haiku-4-5-20251001",
-    "ai_enabled": True,            # master switch for AI extraction
 }
 
 
@@ -44,32 +38,19 @@ def save_config(config):
         json.dump(config, f, indent=2)
 
 
-def get_api_key(provider=None):
-    """Get the API key for the active (or specified) provider.
+def get_gemini_key():
+    """Get the Gemini API key and model.
 
-    Returns (provider, api_key, model) or (None, None, None) if not configured.
+    Returns (api_key, model). Raises RuntimeError if key is missing.
     """
     config = load_config()
-
-    if not config.get("ai_enabled", True):
-        return (None, None, None)
-
-    provider = provider or config.get("ai_provider", "gemini")
-
-    key_map = {
-        "gemini": ("gemini_api_key", "gemini_model"),
-        "openai": ("openai_api_key", "openai_model"),
-        "anthropic": ("anthropic_api_key", "anthropic_model"),
-    }
-
-    if provider not in key_map:
-        return (None, None, None)
-
-    key_field, model_field = key_map[provider]
-    api_key = config.get(key_field, "")
-    model = config.get(model_field, "")
+    api_key = config.get("gemini_api_key", "")
+    model = config.get("gemini_model", "gemini-2.5-flash-lite")
 
     if not api_key:
-        return (None, None, None)
+        raise RuntimeError(
+            "Gemini API key not configured. "
+            "Add 'gemini_api_key' to ~/.schemagic/config.json."
+        )
 
-    return (provider, api_key, model)
+    return (api_key, model)

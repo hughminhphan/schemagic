@@ -1,11 +1,11 @@
 """
-AI-powered datasheet extraction using LLM APIs.
+AI-powered datasheet extraction using Gemini.
 
-Sends datasheet text (first few pages) to an LLM and asks for structured
+Sends datasheet text (first few pages) to Gemini and asks for structured
 extraction of packages and pin assignments. Much more reliable than regex
 for non-TI datasheets and unusual formats.
 
-Uses urllib only (no pip dependencies). Supports Gemini, OpenAI, Anthropic.
+Uses urllib only (no pip dependencies). Gemini-only, no fallback.
 """
 
 import json
@@ -105,18 +105,20 @@ _RESPONSE_SCHEMA = {
 }
 
 
-def _call_gemini(api_key, model, prompt):
+def _call_gemini(api_key, model, prompt, schema=None):
     """Call Gemini API with structured JSON output."""
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
         "{model}:generateContent?key={key}".format(model=model, key=api_key)
     )
+    gen_config = {"responseMimeType": "application/json"}
+    if schema:
+        gen_config["responseSchema"] = schema
+    else:
+        gen_config["responseSchema"] = _RESPONSE_SCHEMA
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "responseSchema": _RESPONSE_SCHEMA,
-        },
+        "generationConfig": gen_config,
     }
     req = urllib.request.Request(
         url,
@@ -132,102 +134,12 @@ def _call_gemini(api_key, model, prompt):
     return json.loads(text)
 
 
-def _call_openai(api_key, model, prompt):
-    """Call OpenAI API with JSON mode."""
-    url = "https://api.openai.com/v1/chat/completions"
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": "You extract structured data from datasheets. Always respond with valid JSON matching the requested schema."},
-            {"role": "user", "content": prompt},
-        ],
-        "response_format": {"type": "json_object"},
-    }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": "Bearer {}".format(api_key),
-        },
-        method="POST",
-    )
-    ctx = _get_ssl_context()
-    with urllib.request.urlopen(req, timeout=45, context=ctx) as resp:
-        body = json.loads(resp.read())
+def _build_page_text(page_texts):
+    """Build prioritised text from page_texts for LLM consumption.
 
-    text = body["choices"][0]["message"]["content"]
-    return json.loads(text)
-
-
-def _call_anthropic(api_key, model, prompt):
-    """Call Anthropic API."""
-    url = "https://api.anthropic.com/v1/messages"
-    payload = {
-        "model": model,
-        "max_tokens": 4096,
-        "messages": [
-            {"role": "user", "content": prompt + "\n\nRespond with JSON only, no markdown fences."},
-        ],
-    }
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-        },
-        method="POST",
-    )
-    ctx = _get_ssl_context()
-    with urllib.request.urlopen(req, timeout=45, context=ctx) as resp:
-        body = json.loads(resp.read())
-
-    text = body["content"][0]["text"]
-    # Strip markdown fences if present
-    text = text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1]
-        if text.endswith("```"):
-            text = text[:-3]
-    return json.loads(text)
-
-
-_PROVIDERS = {
-    "gemini": _call_gemini,
-    "openai": _call_openai,
-    "anthropic": _call_anthropic,
-}
-
-
-def extract_with_ai(part_number, page_texts, provider, api_key, model,
-                     status_callback=None):
-    """Extract package and pin information using an LLM.
-
-    Args:
-        part_number: the component part number
-        page_texts: list of (page_num, text) from parser
-        provider: "gemini", "openai", or "anthropic"
-        api_key: the API key
-        model: model ID string
-        status_callback: optional fn(message) for progress updates
-
-    Returns:
-        (packages, pins, description) where:
-        - packages: list of PackageInfo
-        - pins: list of PinInfo
-        - description: str
-        Returns ([], [], "") on failure.
+    Prioritises first 2 pages and pages with pin tables.
+    Returns combined text string, or "" if no pages.
     """
-    if provider not in _PROVIDERS:
-        logger.warning("Unknown AI provider: %s", provider)
-        return ([], [], "")
-
-    # Build text by selecting the most relevant pages:
-    # 1. Always include first 2 pages (device info, package table, features)
-    # 2. Include pages with pin tables (contain "PIN" + "NAME" or pin-like data)
-    # 3. Fill remaining budget with subsequent pages
     priority_pages = []
     pin_pages = []
     other_pages = []
@@ -253,43 +165,72 @@ def extract_with_ai(part_number, page_texts, provider, api_key, model,
         text_parts.append("--- Page {} ---\n{}".format(page_num, text))
         char_count += len(text)
 
-    if not text_parts:
+    return "\n\n".join(text_parts) if text_parts else ""
+
+
+_PACKAGE_PIN_PROMPT = """You are an expert component datasheet parser for KiCad EDA. Extract pin assignments for part number "{part_number}" specifically for the "{package_name}" package ({pin_count} pins).
+
+PIN RULES:
+- Use pin type from ONLY these values: input, output, bidirectional, power_in, power_out, passive, open_collector, open_emitter, no_connect
+- Include thermal/exposed pads as a pin with name "EP" and type "passive"
+- Use exact pin names from the datasheet (VCC, GND, PA0, etc.)
+
+Datasheet text:
+{text}"""
+
+_PIN_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "pins": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "number": {"type": "string"},
+                    "name": {"type": "string"},
+                    "type": {"type": "string"},
+                    "description": {"type": "string"},
+                },
+                "required": ["number", "name"],
+            },
+        },
+        "description": {"type": "string"},
+    },
+    "required": ["pins"],
+}
+
+
+def extract_with_gemini(part_number, page_texts, api_key, model,
+                        status_callback=None):
+    """Extract package and pin information using Gemini.
+
+    Args:
+        part_number: the component part number
+        page_texts: list of (page_num, text) from parser
+        api_key: the Gemini API key
+        model: Gemini model ID string
+        status_callback: optional fn(message) for progress updates
+
+    Returns:
+        (packages, pins, description) where:
+        - packages: list of PackageInfo
+        - pins: list of PinInfo
+        - description: str
+    """
+    combined_text = _build_page_text(page_texts)
+    if not combined_text:
         return ([], [], "")
 
-    combined_text = "\n\n".join(text_parts)
     prompt = _EXTRACTION_PROMPT.format(
         part_number=part_number,
         text=combined_text,
     )
 
     if status_callback:
-        status_callback("Extracting with AI ({})...".format(provider))
+        status_callback("Extracting with Gemini...")
 
-    try:
-        call_fn = _PROVIDERS[provider]
-        result = call_fn(api_key, model, prompt)
-    except urllib.error.HTTPError as e:
-        error_body = ""
-        try:
-            error_body = e.read().decode("utf-8", errors="replace")[:500]
-        except Exception:
-            pass
-        logger.error("AI API error %s: %s", e.code, error_body)
-        if status_callback:
-            if e.code == 401 or e.code == 403:
-                status_callback("AI extraction failed: invalid API key")
-            elif e.code == 429:
-                status_callback("AI extraction failed: rate limited")
-            else:
-                status_callback("AI extraction failed: HTTP {}".format(e.code))
-        return ([], [], "")
-    except Exception as e:
-        logger.error("AI extraction error: %s", e)
-        if status_callback:
-            status_callback("AI extraction failed: {}".format(str(e)[:100]))
-        return ([], [], "")
+    result = _call_gemini(api_key, model, prompt)
 
-    # Parse the structured response into our models
     packages = []
     for pkg_data in result.get("packages", []):
         name = pkg_data.get("name", "")
@@ -302,20 +243,63 @@ def extract_with_ai(part_number, page_texts, provider, api_key, model,
                 dimensions=pkg_data.get("dimensions", ""),
             ))
 
-    _TYPE_MAP = {
-        "input": "input",
-        "output": "output",
-        "bidirectional": "bidirectional",
-        "power_in": "power_in",
-        "power_out": "power_out",
-        "passive": "passive",
-        "open_collector": "open_collector",
-        "open_emitter": "open_emitter",
-        "no_connect": "no_connect",
-    }
+    pins = _parse_pins(result.get("pins", []))
+    description = result.get("description", "")
 
+    return (packages, pins, description)
+
+
+def extract_pins_for_package(part_number, page_texts, api_key, model,
+                             package_name, pin_count, status_callback=None):
+    """Re-query Gemini for pins specific to a chosen package.
+
+    Args:
+        part_number: the component part number
+        page_texts: list of (page_num, text) from parser
+        api_key: the Gemini API key
+        model: Gemini model ID string
+        package_name: e.g. "SOIC-8"
+        pin_count: expected number of pins
+        status_callback: optional fn(message) for progress updates
+
+    Returns:
+        list of PinInfo
+    """
+    combined_text = _build_page_text(page_texts)
+    if not combined_text:
+        return []
+
+    prompt = _PACKAGE_PIN_PROMPT.format(
+        part_number=part_number,
+        package_name=package_name,
+        pin_count=pin_count,
+        text=combined_text,
+    )
+
+    if status_callback:
+        status_callback("Extracting pins for {} with Gemini...".format(package_name))
+
+    result = _call_gemini(api_key, model, prompt, schema=_PIN_RESPONSE_SCHEMA)
+    return _parse_pins(result.get("pins", []))
+
+
+_TYPE_MAP = {
+    "input": "input",
+    "output": "output",
+    "bidirectional": "bidirectional",
+    "power_in": "power_in",
+    "power_out": "power_out",
+    "passive": "passive",
+    "open_collector": "open_collector",
+    "open_emitter": "open_emitter",
+    "no_connect": "no_connect",
+}
+
+
+def _parse_pins(pin_data_list):
+    """Parse raw pin dicts from Gemini into PinInfo objects."""
     pins = []
-    for pin_data in result.get("pins", []):
+    for pin_data in pin_data_list:
         number = str(pin_data.get("number", ""))
         name = pin_data.get("name", "")
         if number and name:
@@ -329,7 +313,4 @@ def extract_with_ai(part_number, page_texts, provider, api_key, model,
                 pin_type=pin_type,
                 description=pin_data.get("description", ""),
             ))
-
-    description = result.get("description", "")
-
-    return (packages, pins, description)
+    return pins

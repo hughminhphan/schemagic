@@ -58,9 +58,9 @@ engine/
 ├── core/project_detector.py  # Auto-detect KiCad project directory (macOS + Windows + Linux)
 ├── datasheet/fetcher.py      # PDF download (3 strategies: manufacturer URL, TI, DuckDuckGo)
 ├── datasheet/parser.py       # pdfplumber table/text extraction
-├── datasheet/pin_extractor.py # Table -> PinInfo (most complex module, 450+ lines)
-├── datasheet/package_identifier.py # 50+ regex patterns for package detection
-├── datasheet/ai_extractor.py # LLM-assisted extraction (Gemini)
+├── datasheet/pin_extractor.py # Table -> PinInfo (legacy, used by unit tests only)
+├── datasheet/package_identifier.py # Regex package detection (legacy, used by unit tests only)
+├── datasheet/ai_extractor.py # Gemini-only extraction (mandatory, no fallback)
 ├── generation/sexpr.py       # S-expression parser/serializer for KiCad files
 ├── generation/symbol_modifier.py # Clone or create symbols from scratch
 ├── generation/footprint_modifier.py # Copy/rename footprints

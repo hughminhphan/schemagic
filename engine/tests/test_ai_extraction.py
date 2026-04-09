@@ -21,8 +21,8 @@ if __name__ == "__main__":
 
 from engine.datasheet.fetcher import fetch_datasheet
 from engine.datasheet.parser import extract_tables_and_text
-from engine.datasheet.ai_extractor import extract_with_ai
-from engine.core.user_config import get_api_key
+from engine.datasheet.ai_extractor import extract_with_gemini
+from engine.core.user_config import get_gemini_key
 
 
 # Test bank: (part_number, [expected_package_substrings], min_expected_pins)
@@ -185,15 +185,16 @@ TEST_BANK = [
 
 
 def run_test_bank():
-    provider, api_key, model = get_api_key()
-    if not provider or not api_key:
-        print("ERROR: No AI API key configured. Set up ~/.schemagic/config.json")
-        print('  {"ai_provider": "gemini", "gemini_api_key": "YOUR_KEY", "gemini_model": "gemini-2.5-flash-lite"}')
+    try:
+        api_key, model = get_gemini_key()
+    except RuntimeError as e:
+        print("ERROR: {}".format(e))
+        print('  {"gemini_api_key": "YOUR_KEY", "gemini_model": "gemini-2.5-flash-lite"}')
         sys.exit(1)
 
     print("=" * 80)
     print("schemagic AI Extraction Test Bank")
-    print("Provider: {} / {}".format(provider, model))
+    print("Provider: gemini / {}".format(model))
     print("{} components to test".format(len(TEST_BANK)))
     print("=" * 80)
 
@@ -232,8 +233,8 @@ def run_test_bank():
 
         # AI extract
         try:
-            packages, pins, desc = extract_with_ai(
-                pn, page_texts, provider, api_key, model,
+            packages, pins, desc = extract_with_gemini(
+                pn, page_texts, api_key, model,
             )
             ai_time = time.time() - t0
 

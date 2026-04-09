@@ -24,22 +24,10 @@ struct AppConfig {
     hotkey_key: String,
     #[serde(default)]
     start_at_login: bool,
-    #[serde(default = "default_ai_provider")]
-    ai_provider: String,
-    #[serde(default)]
-    ai_enabled: bool,
     #[serde(default)]
     gemini_api_key: String,
     #[serde(default = "default_gemini_model")]
     gemini_model: String,
-    #[serde(default)]
-    openai_api_key: String,
-    #[serde(default = "default_openai_model")]
-    openai_model: String,
-    #[serde(default)]
-    anthropic_api_key: String,
-    #[serde(default = "default_anthropic_model")]
-    anthropic_model: String,
 }
 
 fn default_modifiers() -> Vec<String> {
@@ -48,17 +36,8 @@ fn default_modifiers() -> Vec<String> {
 fn default_key() -> String {
     "k".into()
 }
-fn default_ai_provider() -> String {
-    "gemini".into()
-}
 fn default_gemini_model() -> String {
     "gemini-2.5-flash-lite".into()
-}
-fn default_openai_model() -> String {
-    "gpt-4o-mini".into()
-}
-fn default_anthropic_model() -> String {
-    "claude-haiku-4-5-20251001".into()
 }
 
 impl Default for AppConfig {
@@ -67,14 +46,8 @@ impl Default for AppConfig {
             hotkey_modifiers: default_modifiers(),
             hotkey_key: default_key(),
             start_at_login: false,
-            ai_provider: default_ai_provider(),
-            ai_enabled: true,
             gemini_api_key: String::new(),
             gemini_model: default_gemini_model(),
-            openai_api_key: String::new(),
-            openai_model: default_openai_model(),
-            anthropic_api_key: String::new(),
-            anthropic_model: default_anthropic_model(),
         }
     }
 }

@@ -15,13 +15,11 @@ import os
 import logging
 
 from ..core.config import strip_ti_suffix, check_pdfplumber
-from ..core.user_config import get_api_key
+from ..core.user_config import get_gemini_key
 from ..core.models import DatasheetData, PinInfo, PackageInfo, MatchResult, GeneratedComponent
 from ..datasheet.fetcher import fetch_datasheet, guess_manufacturer
 from ..datasheet.parser import extract_tables_and_text, find_description, find_component_type
-from ..datasheet.pin_extractor import extract_pins_from_tables, extract_pins_from_text, consolidate_power_pins
-from ..datasheet.package_identifier import identify_package, identify_all_packages, _TI_PKG_CODES
-from ..datasheet.ai_extractor import extract_with_ai
+from ..datasheet.ai_extractor import extract_with_gemini, extract_pins_for_package
 from ..matching.library_index import LibraryIndex
 from ..matching.symbol_matcher import match_symbol
 from ..matching.footprint_matcher import match_footprint
@@ -41,6 +39,9 @@ class Pipeline:
         self._tables = []
         self._full_text = ""
         self._page_texts = []
+        self._ai_pins = []
+        self._ai_packages = []
+        self._ai_pin_package = None  # which package the cached pins were extracted for
 
     def set_status_callback(self, callback):
         self.status_callback = callback
@@ -110,49 +111,31 @@ class Pipeline:
             datasheet.description = find_description(full_text, datasheet.part_number)
             datasheet.component_type = find_component_type(full_text)
 
-            # --- AI extraction (if configured) ---
-            ai_provider, ai_key, ai_model = get_api_key()
-            ai_packages = []
-            ai_pins = []
-            if ai_provider and ai_key:
-                self._status("Extracting with AI ({})...".format(ai_provider))
-                try:
-                    ai_packages, ai_pins, ai_desc = extract_with_ai(
-                        part_number, page_texts,
-                        ai_provider, ai_key, ai_model,
-                        status_callback=self._status,
-                    )
-                    if ai_desc and not datasheet.description:
-                        datasheet.description = ai_desc
-                    if ai_packages:
-                        self._status("AI found {} package(s)".format(len(ai_packages)))
-                except Exception as e:
-                    logger.warning("AI extraction failed, falling back to regex: %s", e)
-                    self._status("AI extraction failed, using regex fallback")
-
-            # Use AI packages if available, otherwise fall back to regex
+            # --- Gemini extraction (mandatory) ---
+            gemini_key, gemini_model = get_gemini_key()
+            ai_packages, ai_pins, ai_desc = extract_with_gemini(
+                part_number, page_texts,
+                gemini_key, gemini_model,
+                status_callback=self._status,
+            )
+            if ai_desc and not datasheet.description:
+                datasheet.description = ai_desc
             if ai_packages:
-                candidates = ai_packages
-            else:
-                # Find all package candidates via table parsing / regex
-                self._status("Identifying packages...")
-                candidates = identify_all_packages(
-                    full_text, base_pn=base_pn, manufacturer=manufacturer,
-                    tables=tables, part_number=part_number,
-                )
+                self._status("Gemini found {} package(s)".format(len(ai_packages)))
 
-            # Try auto-select: suffix code resolves to a known package
+            self._ai_packages = ai_packages
+            self._ai_pins = ai_pins
+            candidates = ai_packages
+
+            # Try auto-select: suffix code matches a Gemini candidate's ti_code
             selected = None
-            if suffix_code and suffix_code in _TI_PKG_CODES:
-                pkg_name, pkg_pins = _TI_PKG_CODES[suffix_code]
-                # Find matching candidate or create one
+            if suffix_code:
                 for c in candidates:
-                    if c.name == pkg_name:
+                    if c.ti_code and c.ti_code.upper() == suffix_code.upper():
                         selected = c
                         break
-                if not selected:
-                    selected = PackageInfo(name=pkg_name, pin_count=pkg_pins, ti_code=suffix_code)
-                self._status(f"Auto-selected package {selected.name} from suffix '{suffix_code}'")
+                if selected:
+                    self._status(f"Auto-selected package {selected.name} from suffix '{suffix_code}'")
 
             # Single candidate - auto-select
             if not selected and len(candidates) == 1:
@@ -160,26 +143,14 @@ class Pipeline:
                 self._status(f"Auto-selected package {selected.name} (only candidate)")
 
             if selected:
-                # Run phase 2 immediately
-                # If AI extracted pins, attach them to the datasheet before finishing
-                if ai_pins:
-                    datasheet.pins = ai_pins
-                    datasheet.confidence = 0.85
+                self._ai_pin_package = selected.name
+                datasheet.pins = ai_pins
+                datasheet.confidence = 0.9
                 return self._finish_with_package(datasheet, selected, candidates, suffix_code)
 
-            # Multiple candidates and no suffix - extract pins
-            if ai_pins:
-                # Use AI-extracted pins
-                datasheet.pins = ai_pins
-                datasheet.confidence = 0.85
-            else:
-                self._status("Extracting pin assignments...")
-                pins, confidence = extract_pins_from_tables(tables, part_number=self._part_number)
-                if not pins:
-                    pins, confidence = extract_pins_from_text(full_text)
-                pins = consolidate_power_pins(pins)
-                datasheet.pins = pins
-                datasheet.confidence = confidence
+            # Multiple candidates - use AI pins optimistically, user will pick package
+            datasheet.pins = ai_pins
+            datasheet.confidence = 0.9
 
         elif not pdf_path:
             self._status("Could not download datasheet - proceeding with library search only")
@@ -219,17 +190,30 @@ class Pipeline:
         """
         datasheet.package = selected_package
 
-        # Re-extract pins filtered to expected pin count and target package
-        self._status("Extracting pin assignments...")
-        pins, confidence = extract_pins_from_tables(
-            self._tables,
-            expected_pin_count=selected_package.pin_count,
-            target_package=selected_package.name,
-            part_number=self._part_number,
-        )
-        if not pins:
-            pins, confidence = extract_pins_from_text(self._full_text)
-        pins = consolidate_power_pins(pins)
+        # Use cached Gemini pins if they match, otherwise re-query for the specific package
+        if self._ai_pins and self._ai_pin_package == selected_package.name:
+            pins = self._ai_pins
+            confidence = 0.9
+        elif self._ai_pins and not self._ai_pin_package:
+            # Initial extraction (no specific package targeted) - use as-is
+            pins = self._ai_pins
+            confidence = 0.9
+            self._ai_pin_package = selected_package.name
+        else:
+            # Re-query Gemini for the user-selected package
+            self._status(f"Re-extracting pins for {selected_package.name} with Gemini...")
+            gemini_key, gemini_model = get_gemini_key()
+            pins = extract_pins_for_package(
+                self._part_number, self._page_texts,
+                gemini_key, gemini_model,
+                package_name=selected_package.name,
+                pin_count=selected_package.pin_count,
+                status_callback=self._status,
+            )
+            confidence = 0.9
+            self._ai_pins = pins
+            self._ai_pin_package = selected_package.name
+
         datasheet.pins = pins
         datasheet.confidence = confidence
 
