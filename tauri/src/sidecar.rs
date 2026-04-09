@@ -53,11 +53,17 @@ fn resolve_sidecar_path(app: &AppHandle) -> Result<std::path::PathBuf, Box<dyn s
         .unwrap()
         .to_path_buf();
 
+    // In dev, also check the tauri/sidecar/ directory (2 levels up from target/debug/)
+    let dev_sidecar_dir = exe_parent.join("../../sidecar");
+
     let candidates: Vec<PathBuf> = vec![
+        // Production: bundled next to the app binary
         exe_dir.join("binaries").join(&binary_name),
         exe_dir.join(&binary_name),
         exe_parent.join("binaries").join(&binary_name),
         exe_parent.join(&binary_name),
+        // Dev mode: in the tauri/sidecar/ directory (original PyInstaller output)
+        dev_sidecar_dir.join(&binary_name),
     ];
 
     for path in &candidates {
