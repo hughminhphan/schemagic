@@ -19,7 +19,7 @@ export default function Hero() {
           <p className="mt-[24px] font-mono text-xs text-text-secondary">
             or{" "}
             <a
-              href="https://github.com/hughminhphan/schemagic/releases/latest/download/scheMAGIC_0.2.1_aarch64.dmg"
+              href="/api/download/mac"
               className="underline hover:text-text-primary transition-colors"
             >
               download DMG directly
