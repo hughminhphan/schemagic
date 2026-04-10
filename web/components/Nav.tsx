@@ -14,12 +14,20 @@ export default function Nav() {
         </a>
         <div className="flex items-center gap-[24px]">
           {!isApp && (
-            <a
-              href="#download"
-              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-            >
-              Download
-            </a>
+            <>
+              <a
+                href="#pricing"
+                className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+              >
+                Pricing
+              </a>
+              <a
+                href="#download"
+                className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+              >
+                Download
+              </a>
+            </>
           )}
         </div>
       </div>
