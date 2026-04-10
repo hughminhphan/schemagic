@@ -8,6 +8,7 @@
     "beforeBuildCommand": ""
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "label": "main",
@@ -46,7 +47,8 @@
     ],
     "macOS": {
       "minimumSystemVersion": "10.15",
-      "signingIdentity": "Developer ID Application"
+      "signingIdentity": "Developer ID Application",
+      "entitlements": "entitlements.plist"
     },
     "windows": {
       "nsis": {
