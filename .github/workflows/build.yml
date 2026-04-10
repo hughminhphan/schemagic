@@ -44,8 +44,13 @@ jobs:
           mkdir -p tauri/binaries
           cp "tauri/sidecar/schemagic-server-${TRIPLE}" "tauri/binaries/"
 
-      - name: Build frontend
-        run: cd web && npm ci && npm run build
+      - name: Build frontend (static export for Tauri)
+        run: |
+          cd web
+          npm ci
+          mv app/api app/_api_server_only || true
+          STATIC_EXPORT=1 npm run build
+          mv app/_api_server_only app/api || true
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
@@ -91,8 +96,16 @@ jobs:
           Copy-Item "tauri\sidecar\schemagic-server-x86_64-pc-windows-msvc.exe" "tauri\binaries\"
         shell: pwsh
 
-      - name: Build frontend
-        run: cd web && npm ci && npm run build
+      - name: Build frontend (static export for Tauri)
+        run: |
+          cd web
+          npm ci
+          if (Test-Path app/api) { Rename-Item app/api _api_server_only }
+          npm run build
+          if (Test-Path app/_api_server_only) { Rename-Item app/_api_server_only api }
+        shell: pwsh
+        env:
+          STATIC_EXPORT: "1"
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
