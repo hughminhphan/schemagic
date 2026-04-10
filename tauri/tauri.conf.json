@@ -45,7 +45,8 @@
       "binaries/schemagic-server"
     ],
     "macOS": {
-      "minimumSystemVersion": "10.15"
+      "minimumSystemVersion": "10.15",
+      "signingIdentity": "Developer ID Application"
     },
     "windows": {
       "nsis": {
