@@ -3467,7 +3467,7 @@ dependencies = [
 
 [[package]]
 name = "schemagic"
-version = "0.2.1"
+version = "0.2.3"
 dependencies = [
  "dirs 5.0.1",
  "log",
@@ -3482,6 +3482,7 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-updater",
  "tokio",
+ "uuid",
 ]
 
 [[package]]

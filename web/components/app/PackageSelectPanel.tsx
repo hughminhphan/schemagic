@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
-import { apiBase } from "@/lib/api-base";
+import { apiBase, fetchWithLicense } from "@/lib/api-base";
+import { useLicenseContext } from "./LicenseContext";
 
 export default function PackageSelectPanel() {
   const { candidates, jobId } = useWizard();
   const dispatch = useWizardDispatch();
+  const { acquireToken } = useLicenseContext();
   const [selecting, setSelecting] = useState<string | null>(null);
 
   async function handleSelect(packageName: string) {
@@ -15,7 +17,9 @@ export default function PackageSelectPanel() {
 
     setSelecting(packageName);
     try {
-      const res = await fetch(`${apiBase()}/api/select-package`, {
+      const token = await acquireToken();
+      if (!token) return;
+      const res = await fetchWithLicense(`${apiBase()}/api/select-package`, token, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ job_id: jobId, package: candidate }),

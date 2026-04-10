@@ -34,6 +34,10 @@ struct AppConfig {
     license_status: String,
     #[serde(default)]
     last_check: i64,
+    #[serde(default)]
+    license_token: String,
+    #[serde(default)]
+    machine_id: String,
 }
 
 fn default_modifiers() -> Vec<String> {
@@ -60,6 +64,8 @@ impl Default for AppConfig {
             email: String::new(),
             license_status: default_license_status(),
             last_check: 0,
+            license_token: String::new(),
+            machine_id: String::new(),
         }
     }
 }
@@ -124,6 +130,35 @@ fn mark_setup_done() -> Result<(), String> {
 #[tauri::command]
 fn get_api_port(state: tauri::State<'_, Mutex<sidecar::SidecarState>>) -> u16 {
     state.lock().unwrap().port
+}
+
+/// Tauri command: get or generate a stable machine ID
+#[tauri::command]
+fn get_machine_id() -> Result<String, String> {
+    let mut config = load_config();
+    if config.machine_id.is_empty() {
+        config.machine_id = uuid::Uuid::new_v4().to_string();
+        save_config(&config)?;
+    }
+    Ok(config.machine_id)
+}
+
+/// Tauri command: store a license token
+#[tauri::command]
+fn store_license_token(token: String) -> Result<(), String> {
+    let mut config = load_config();
+    config.license_token = token;
+    config.last_check = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as i64;
+    save_config(&config)
+}
+
+/// Tauri command: get the stored license token
+#[tauri::command]
+fn get_license_token() -> String {
+    load_config().license_token
 }
 
 fn build_shortcut(config: &AppConfig) -> Option<Shortcut> {
@@ -197,6 +232,9 @@ fn main() {
             is_setup_done,
             mark_setup_done,
             get_api_port,
+            get_machine_id,
+            store_license_token,
+            get_license_token,
         ])
         .on_page_load(move |webview, _payload| {
             let p = port_for_pageload.load(Ordering::Relaxed);

@@ -35,7 +35,7 @@ fi
 source "$VENV_DIR/bin/activate"
 
 echo "==> Installing sidecar build dependencies..."
-pip install --quiet pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi
+pip install --quiet pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi "PyJWT[crypto]"
 
 echo "==> Building sidecar with PyInstaller..."
 pyinstaller tauri/sidecar/schemagic-server.spec \

@@ -11,9 +11,10 @@ export async function POST(req: NextRequest) {
 
   const session = await getStripe().checkout.sessions.create({
     customer: customer.id,
+    customer_email: undefined, // Already set via customer object
     mode: "subscription",
     line_items: [{ price: PRICE_ID, quantity: 1 }],
-    success_url: `${APP_URL}/?checkout=success`,
+    success_url: `${APP_URL}/activate?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${APP_URL}/?checkout=canceled`,
   });
 

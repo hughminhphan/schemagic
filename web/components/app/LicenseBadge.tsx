@@ -3,10 +3,10 @@
 import { useLicenseContext } from "./LicenseContext";
 
 export default function LicenseBadge() {
-  const { status } = useLicenseContext();
+  const { status, tier } = useLicenseContext();
   if (!status) return null;
 
-  if (status.licensed) {
+  if (tier === "pro") {
     return (
       <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider text-accent border border-accent/30 rounded">
         Pro

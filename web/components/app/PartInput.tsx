@@ -3,13 +3,13 @@
 import { useState, type FormEvent } from "react";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
 import { useLicenseContext } from "./LicenseContext";
-import { apiBase } from "@/lib/api-base";
+import { apiBase, fetchWithLicense } from "@/lib/api-base";
 
 export default function PartInput() {
   const [partNumber, setPartNumber] = useState("");
   const state = useWizard();
   const dispatch = useWizardDispatch();
-  const { consumeGeneration } = useLicenseContext();
+  const { acquireToken } = useLicenseContext();
 
   const isRunning = state.step === "RUNNING";
 
@@ -19,11 +19,11 @@ export default function PartInput() {
     if (!trimmed) return;
 
     try {
-      // Check license / consume a free generation before starting
-      const allowed = await consumeGeneration();
-      if (!allowed) return;
+      // Acquire a license token before starting (pro: cached JWT, free: single-use)
+      const token = await acquireToken();
+      if (!token) return;
 
-      const res = await fetch(`${apiBase()}/api/run`, {
+      const res = await fetchWithLicense(`${apiBase()}/api/run`, token, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ part_number: trimmed }),

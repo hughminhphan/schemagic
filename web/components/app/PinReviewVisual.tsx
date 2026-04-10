@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
 import { usePinReviewData } from "@/hooks/usePinReviewData";
 import { generateSyntheticSymbol } from "@/lib/generate-synthetic-symbol";
-import { apiBase } from "@/lib/api-base";
+import { apiBase, fetchWithLicense } from "@/lib/api-base";
+import { useLicenseContext } from "./LicenseContext";
 import SymbolViewer from "./SymbolViewer";
 import FootprintViewer from "./FootprintViewer";
 import PinEditPanel from "./PinEditPanel";
@@ -13,6 +14,7 @@ import PinReviewTable from "./PinReviewTable";
 export default function PinReviewVisual() {
   const { pins, match, datasheet, jobId, selectedPinNumber, candidates, detectedProject } = useWizard();
   const dispatch = useWizardDispatch();
+  const { acquireToken } = useLicenseContext();
   const { symbolData, footprintData, loading } = usePinReviewData(match);
   const [showTable, setShowTable] = useState(false);
   const [switchingPackage, setSwitchingPackage] = useState(false);
@@ -131,7 +133,9 @@ export default function PinReviewVisual() {
     if (!candidate || switchingPackage) return;
     setSwitchingPackage(true);
     try {
-      const res = await fetch(`${apiBase()}/api/select-package`, {
+      const token = await acquireToken();
+      if (!token) return;
+      const res = await fetchWithLicense(`${apiBase()}/api/select-package`, token, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ job_id: jobId, package: candidate }),
@@ -157,11 +161,13 @@ export default function PinReviewVisual() {
     dispatch({ type: "START_GENERATE" });
 
     try {
+      const token = await acquireToken();
+      if (!token) return;
       const body: Record<string, unknown> = { job_id: jobId, pins };
       if (detectedProject) {
         body.project_dir = detectedProject.dir;
       }
-      const res = await fetch(`${apiBase()}/api/finalize`, {
+      const res = await fetchWithLicense(`${apiBase()}/api/finalize`, token, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

@@ -5,7 +5,7 @@ import os
 import threading
 import dataclasses
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from server.schemas import (
@@ -20,6 +20,8 @@ from server.job_store import JobStore
 from engine.core.pipeline import Pipeline
 from engine.core.models import PinInfo, PackageInfo
 
+from server.license import validate_license_token
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -27,6 +29,15 @@ router = APIRouter()
 
 def _get_jobs(request: Request) -> JobStore:
     return request.app.state.jobs
+
+
+async def require_license(x_license_token: str = Header(...)):
+    """Validate the X-License-Token header on billable endpoints."""
+    try:
+        claims = validate_license_token(x_license_token)
+        return claims
+    except Exception:
+        raise HTTPException(status_code=403, detail="Invalid or expired license token")
 
 
 def _datasheet_to_schema(ds) -> DatasheetSummarySchema:
@@ -140,7 +151,7 @@ def _run_pipeline_thread(job_id: str, part_number: str, jobs: JobStore, local_pd
     q.put(None)  # sentinel
 
 
-@router.post("/run", response_model=RunResponse)
+@router.post("/run", response_model=RunResponse, dependencies=[Depends(require_license)])
 async def run_pipeline(req: RunRequest, request: Request):
     jobs = _get_jobs(request)
     job_id = jobs.create()
@@ -187,7 +198,7 @@ async def stream_status(job_id: str, request: Request):
     )
 
 
-@router.post("/select-package", response_model=SelectPackageResponse)
+@router.post("/select-package", response_model=SelectPackageResponse, dependencies=[Depends(require_license)])
 async def select_package(req: SelectPackageRequest, request: Request):
     jobs = _get_jobs(request)
     job = jobs.get(req.job_id)
@@ -221,7 +232,7 @@ async def select_package(req: SelectPackageRequest, request: Request):
     )
 
 
-@router.post("/finalize", response_model=FinalizeResponse)
+@router.post("/finalize", response_model=FinalizeResponse, dependencies=[Depends(require_license)])
 async def finalize(req: FinalizeRequest, request: Request):
     jobs = _get_jobs(request)
     job = jobs.get(req.job_id)

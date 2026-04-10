@@ -1,17 +1,21 @@
 "use client";
 
 import { useWizard, useWizardDispatch } from "./WizardProvider";
-import { apiBase } from "@/lib/api-base";
+import { apiBase, fetchWithLicense } from "@/lib/api-base";
+import { useLicenseContext } from "./LicenseContext";
 
 export default function PackageSelect() {
   const { candidates, jobId } = useWizard();
   const dispatch = useWizardDispatch();
+  const { acquireToken } = useLicenseContext();
 
   async function handleSelect(candidate: (typeof candidates)[0]) {
     dispatch({ type: "ADD_LOG", message: `Selected package: ${candidate.name}` });
 
     try {
-      const res = await fetch(`${apiBase()}/api/select-package`, {
+      const token = await acquireToken();
+      if (!token) return;
+      const res = await fetchWithLicense(`${apiBase()}/api/select-package`, token, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

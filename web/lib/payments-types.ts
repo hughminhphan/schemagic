@@ -11,3 +11,15 @@ export interface GenerationPermission {
   generationsUsed?: number;
   generationsRemaining?: number;
 }
+
+/** Response from /api/license/validate */
+export interface ValidateResponse {
+  valid: boolean;
+  token?: string;
+  tier?: "pro" | "free";
+  reason?: "no_account" | "device_mismatch" | "limit_reached";
+  message?: string;
+  generationsUsed?: number;
+  generationsLimit?: number;
+  generationsRemaining?: number;
+}

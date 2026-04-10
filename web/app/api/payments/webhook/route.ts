@@ -21,14 +21,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Webhook error: ${message}` }, { status: 400 });
   }
 
-  // License status is checked live from Stripe on each app launch,
-  // so there is no local state to invalidate. The webhook exists for
-  // Stripe compliance and future extension (e.g. analytics, email notifications).
+  const stripe = getStripe();
+
   switch (event.type) {
-    case "customer.subscription.deleted":
+    case "customer.subscription.deleted": {
+      // Clear machine_id so user can reactivate on a new device if they resubscribe
+      const sub = event.data.object as { customer: string };
+      await stripe.customers.update(sub.customer as string, {
+        metadata: { machine_id: "" },
+      });
+      break;
+    }
+    case "invoice.payment_failed": {
+      // Flag the customer so the validate endpoint shortens JWT expiry
+      const invoice = event.data.object as { customer: string };
+      const customer = await stripe.customers.retrieve(invoice.customer as string);
+      if (!customer.deleted) {
+        await stripe.customers.update(invoice.customer as string, {
+          metadata: { ...customer.metadata, payment_failed: "true" },
+        });
+      }
+      break;
+    }
+    case "invoice.payment_succeeded": {
+      // Clear payment_failed flag on successful payment
+      const invoice = event.data.object as { customer: string };
+      const customer = await stripe.customers.retrieve(invoice.customer as string);
+      if (!customer.deleted) {
+        const meta = { ...customer.metadata };
+        delete meta.payment_failed;
+        await stripe.customers.update(invoice.customer as string, {
+          metadata: meta,
+        });
+      }
+      break;
+    }
     case "customer.subscription.updated":
-    case "invoice.payment_failed":
-      // No-op for now. The /check endpoint always reads live Stripe state.
+      // Log only for now
       break;
   }
 

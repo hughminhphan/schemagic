@@ -28,10 +28,33 @@ export default function LicenseGate({ children }: Props) {
     return <EmailPrompt onSubmit={license.setEmail} />;
   }
 
+  // Error state (e.g. device mismatch, offline with no cached token)
+  if (license.error && !license.tier) {
+    return (
+      <div className="grid-bg min-h-screen flex items-center justify-center">
+        <div className="border border-border bg-surface-raised p-[24px] max-w-md">
+          <p className="font-mono text-xs text-red-400 uppercase tracking-wider mb-[12px]">
+            License error
+          </p>
+          <p className="text-sm text-text-secondary mb-[24px]">
+            {license.error}
+          </p>
+          <button
+            onClick={license.refreshLicense}
+            className="text-xs text-accent hover:underline"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Hit free limit and not licensed
   const hitLimit =
     license.status &&
     !license.status.licensed &&
+    !license.tier &&
     license.status.generationsUsed >= license.status.generationsLimit;
 
   if (hitLimit) {
@@ -46,7 +69,7 @@ export default function LicenseGate({ children }: Props) {
     );
   }
 
-  // Provide license context to children (PartInput uses consumeGeneration)
+  // Licensed (pro or free with remaining generations)
   return (
     <LicenseContext.Provider value={license}>{children}</LicenseContext.Provider>
   );

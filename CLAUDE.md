@@ -165,16 +165,20 @@ cd tauri && cargo tauri build
 
 ## Payments and licensing
 
-Stripe subscription ($5 AUD/month) with 3 free generations for unlicensed users.
+Stripe subscription ($5 AUD/month) with 3 free generations. RS256 JWT license tokens enforced at the sidecar layer.
 
 ### How it works
 
 ```
-App launch -> LicenseGate checks schemagic.design/api/payments/check?email=...
-  -> No email yet: show EmailPrompt
-  -> Under free limit: show wizard (consumeGeneration() called before each job)
-  -> Over limit + not subscribed: show Paywall -> Stripe Checkout in browser
-  -> Subscribed: unlimited access
+App launch -> LicenseGate reads email + cached JWT from Tauri config
+  -> No email: show EmailPrompt
+  -> Has email: POST /api/license/validate with email + machine_id
+     -> Pro (active subscription): get 7-day JWT, cache locally
+     -> Free tier (under limit): get single-use 5-min JWT per generation
+     -> Over limit: show Paywall -> Stripe Checkout in browser
+     -> Device mismatch: show error
+  -> Sidecar validates X-License-Token header on /api/run, /api/select-package, /api/finalize
+  -> Offline: cached pro JWT valid up to 7 days
 ```
 
 ### Key files
@@ -182,15 +186,27 @@ App launch -> LicenseGate checks schemagic.design/api/payments/check?email=...
 | File | Purpose |
 |------|---------|
 | `web/lib/stripe.ts` | Stripe client + business logic (server-side only) |
-| `web/lib/payments-types.ts` | Shared TypeScript types |
-| `web/lib/payments-constants.ts` | Client-side constants (FREE_GENERATION_LIMIT) |
-| `web/app/api/payments/*/route.ts` | 5 API routes: check, checkout, portal, webhook, generation |
-| `web/hooks/useLicense.ts` | React hook managing all license state + Tauri config persistence |
+| `web/lib/license.ts` | RS256 JWT signing/verification (server-side) |
+| `web/lib/payments-types.ts` | Shared TypeScript types (LicenseStatus, ValidateResponse) |
+| `web/app/api/license/validate/route.ts` | Core endpoint: validate email + machine_id, issue JWT |
+| `web/app/api/payments/checkout/route.ts` | Create Stripe Checkout session |
+| `web/app/api/payments/portal/route.ts` | Create Stripe Customer Portal session |
+| `web/app/api/payments/webhook/route.ts` | Handle Stripe webhook events (subscription lifecycle) |
+| `web/app/api/payments/check/route.ts` | Legacy check endpoint (kept for backwards compat) |
+| `web/app/activate/page.tsx` | Post-checkout landing page |
+| `web/hooks/useLicense.ts` | React hook: license state, token acquisition, offline fallback |
 | `web/components/app/LicenseGate.tsx` | Gate component wrapping the wizard |
-| `web/components/app/LicenseContext.tsx` | React context for deep components (e.g. PartInput) |
-| `web/components/app/EmailPrompt.tsx` | First-launch email entry |
-| `web/components/app/Paywall.tsx` | Free tier exhausted screen |
-| `web/components/app/LicenseBadge.tsx` | "Pro" / "2/3 free" indicator |
+| `web/components/app/LicenseContext.tsx` | React context (acquireToken for sidecar calls) |
+| `web/lib/api-base.ts` | fetchWithLicense() injects X-License-Token header |
+| `server/license.py` | Sidecar JWT validation with embedded public key |
+
+### Anti-piracy enforcement
+
+- Sidecar requires valid `X-License-Token` header on billable endpoints (403 without it)
+- JWT signed with RS256 private key (Vercel only), public key embedded in sidecar binary
+- Machine binding: UUID generated on first launch, stored in config, verified server-side
+- Free tier: online-only (single-use 5-min tokens), no fail-open
+- Pro tier: 7-day offline grace via JWT expiry
 
 ### Dual build modes
 
@@ -200,7 +216,7 @@ App launch -> LicenseGate checks schemagic.design/api/payments/check?email=...
 
 ### Stripe data model
 
-Stripe is the database. No external DB. Customer metadata stores `free_generations` count. License status checked live from Stripe on each app launch with 24h localStorage cache fallback.
+Stripe is the database. No external DB. Customer metadata stores: `free_generations` count, `machine_id` (device binding), `payment_failed` flag.
 
 ### Vercel env vars (production)
 
@@ -208,10 +224,12 @@ Stripe is the database. No external DB. Customer metadata stores `free_generatio
 - `STRIPE_WEBHOOK_SECRET` - whsec_...
 - `STRIPE_PRICE_ID` - price_...
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - pk_test_... or pk_live_...
+- `LICENSE_PRIVATE_KEY` - RS256 private key for JWT signing
+- `LICENSE_PUBLIC_KEY` - RS256 public key for JWT verification
 
 ### User config additions
 
-`~/.schemagic/config.json` now includes: `email`, `license_status`, `last_check` (read/written by both Rust and Python).
+`~/.schemagic/config.json` includes: `email`, `license_status`, `last_check`, `license_token` (JWT), `machine_id` (UUID).
 
 ## Environment variables
 
