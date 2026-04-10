@@ -1,8 +1,9 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+export const config = { runtime: "edge" };
 
 const REPO = "hughminhphan/schemagic";
+const FALLBACK = `https://github.com/${REPO}/releases/latest`;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler() {
   try {
     const response = await fetch(
       `https://api.github.com/repos/${REPO}/releases/latest`,
@@ -10,8 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     if (!response.ok) {
-      res.redirect(302, `https://github.com/${REPO}/releases/latest`);
-      return;
+      return Response.redirect(FALLBACK, 302);
     }
 
     const release = await response.json();
@@ -20,11 +20,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     if (dmg) {
-      res.redirect(302, dmg.browser_download_url);
-    } else {
-      res.redirect(302, `https://github.com/${REPO}/releases/latest`);
+      return Response.redirect(dmg.browser_download_url, 302);
     }
+    return Response.redirect(FALLBACK, 302);
   } catch {
-    res.redirect(302, `https://github.com/${REPO}/releases/latest`);
+    return Response.redirect(FALLBACK, 302);
   }
 }
