@@ -16,7 +16,7 @@ export default function DownloadCTA() {
             <p className="mt-[24px] font-mono text-xs text-text-secondary">
               or{" "}
               <a
-                href="https://github.com/hughminhphan/schemagic-webapp/releases/download/v0.1.0/scheMAGIC.dmg"
+                href="https://github.com/hughminhphan/schemagic/releases/latest/download/scheMAGIC_0.2.1_aarch64.dmg"
                 className="underline hover:text-text-primary transition-colors"
               >
                 download DMG directly
