@@ -53,6 +53,7 @@ def _datasheet_to_schema(ds) -> DatasheetSummarySchema:
                 pin_type=p.pin_type,
                 description=p.description or "",
                 alt_numbers=p.alt_numbers or [],
+                is_hidden=getattr(p, "is_hidden", False),
             )
             for p in ds.pins
         ],
@@ -97,8 +98,12 @@ def _run_pipeline_thread(job_id: str, part_number: str, jobs: JobStore, local_pd
             suffix_code=suffix_code,
         )
 
-        if datasheet.package is None and len(candidates) > 0:
-            # Auto-select first candidate instead of blocking for user input
+        if datasheet.package is None and len(candidates) > 1:
+            # Multiple packages - let user choose before extracting pins
+            # Don't auto-select; the frontend will show a package picker
+            pass
+        elif datasheet.package is None and len(candidates) == 1:
+            # Single candidate - auto-select
             best = candidates[0]
             pkg = PackageInfo(
                 name=best.name,
@@ -236,12 +241,20 @@ async def finalize(req: FinalizeRequest, request: Request):
             pin_type=p.pin_type,
             description=p.description,
             alt_numbers=p.alt_numbers,
+            is_hidden=p.is_hidden,
         )
         for p in req.pins
     ]
 
+    # If a project_dir was provided, save directly to the KiCad project
+    imported = False
+    if req.project_dir:
+        if not os.path.isdir(req.project_dir):
+            raise HTTPException(status_code=400, detail=f"Project directory not found: {req.project_dir}")
+        pipe.project_dir = req.project_dir
+        imported = True
+
     # Run finalize
-    import os
     try:
         result = pipe.finalize(ds, match, confirmed_pins)
     except Exception as e:
@@ -249,7 +262,7 @@ async def finalize(req: FinalizeRequest, request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
     # Build file manifest
-    output_dir = job["output_dir"]
+    output_dir = req.project_dir if imported else job["output_dir"]
     file_list = []
 
     # Symbol file
@@ -272,4 +285,4 @@ async def finalize(req: FinalizeRequest, request: Request):
     if result.model_ref:
         model_info = ModelInfo(ref=result.model_ref, inferred=result.model_ref_inferred)
 
-    return FinalizeResponse(job_id=req.job_id, files=file_list, model=model_info)
+    return FinalizeResponse(job_id=req.job_id, files=file_list, model=model_info, imported=imported)

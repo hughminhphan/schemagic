@@ -287,8 +287,12 @@ def create_empty_symbol(datasheet: DatasheetData, footprint_str=""):
     """
     target_name = datasheet.part_number.upper()
 
-    # Consolidate same-name pins before layout
-    consolidated = _consolidate_pins(datasheet.pins)
+    # Separate hidden pins (thermal pads) before consolidation
+    visible_pins = [p for p in datasheet.pins if not getattr(p, "is_hidden", False)]
+    thermal_hidden = [p for p in datasheet.pins if getattr(p, "is_hidden", False)]
+
+    # Consolidate same-name visible pins before layout
+    consolidated = _consolidate_pins(visible_pins)
     pin_count = len(consolidated)
 
     # Calculate box size
@@ -387,9 +391,46 @@ def create_empty_symbol(datasheet: DatasheetData, footprint_str=""):
             alt_pin = PinInfo(number=alt_num, name=pin.name, pin_type=pin.pin_type)
             _add_pin(pins_sym, alt_pin, x, -half_h - 2.54, 90)
 
+    # Hidden pins (thermal pads -> GND) — stacked at GND position, not visible
+    for pin in thermal_hidden:
+        # Place at same position as first GND bottom pin, or center bottom
+        x = 0
+        if bottom_pins:
+            for i, bp in enumerate(bottom_pins):
+                if bp.name.upper() == "GND":
+                    x = -2.54 * (len(bottom_pins) - 1) / 2 + i * 2.54
+                    break
+        _add_hidden_pin(pins_sym, pin, x, -half_h - 2.54, 90)
+
     sym.add_child(pins_sym)
 
     return sym
+
+
+def _add_hidden_pin(parent, pin_info: PinInfo, x, y, angle):
+    """Add a hidden pin to a symbol (e.g. thermal pad -> GND)."""
+    pin = SExprNode("pin", [pin_info.pin_type, "line"])
+    pin.add_child(SExprNode("at", [_fmt(x), _fmt(y), _fmt(angle)]))
+    pin.add_child(SExprNode("length", ["0"]))
+    pin.add_child(SExprNode("hide", ["yes"]))
+
+    name_node = SExprNode("name", [pin_info.name])
+    name_effects = SExprNode("effects")
+    name_font = SExprNode("font")
+    name_font.add_child(SExprNode("size", ["1.27", "1.27"]))
+    name_effects.add_child(name_font)
+    name_node.add_child(name_effects)
+    pin.add_child(name_node)
+
+    num_node = SExprNode("number", [pin_info.number])
+    num_effects = SExprNode("effects")
+    num_font = SExprNode("font")
+    num_font.add_child(SExprNode("size", ["1.27", "1.27"]))
+    num_effects.add_child(num_font)
+    num_node.add_child(num_effects)
+    pin.add_child(num_node)
+
+    parent.add_child(pin)
 
 
 def _add_property(sym, name, value, x=0, y=0, hide=False, prop_id=None):

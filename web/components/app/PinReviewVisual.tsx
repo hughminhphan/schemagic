@@ -11,7 +11,7 @@ import PinEditPanel from "./PinEditPanel";
 import PinReviewTable from "./PinReviewTable";
 
 export default function PinReviewVisual() {
-  const { pins, match, datasheet, jobId, selectedPinNumber, candidates } = useWizard();
+  const { pins, match, datasheet, jobId, selectedPinNumber, candidates, detectedProject } = useWizard();
   const dispatch = useWizardDispatch();
   const { symbolData, footprintData, loading } = usePinReviewData(match);
   const [showTable, setShowTable] = useState(false);
@@ -157,16 +157,21 @@ export default function PinReviewVisual() {
     dispatch({ type: "START_GENERATE" });
 
     try {
+      const body: Record<string, unknown> = { job_id: jobId, pins };
+      if (detectedProject) {
+        body.project_dir = detectedProject.dir;
+      }
       const res = await fetch(`${apiBase()}/api/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job_id: jobId, pins }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       dispatch({
         type: "GENERATED",
         files: data.files,
         model: data.model || null,
+        imported: data.imported || false,
       });
     } catch (err) {
       dispatch({
@@ -298,7 +303,9 @@ export default function PinReviewVisual() {
         onClick={handleGenerate}
         className="w-full bg-accent h-[48px] text-sm font-medium text-white hover:bg-accent-hover transition-colors"
       >
-        Generate Files
+        {detectedProject
+          ? `Import to ${detectedProject.name}`
+          : "Generate Files"}
       </button>
     </div>
   );

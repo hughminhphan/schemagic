@@ -12,6 +12,8 @@ export interface GraphicItem {
   text?: string;
   stroke_width?: number;
   fill?: string;
+  font_size?: number;
+  unit?: number;
 }
 
 export interface SymbolPin {
@@ -22,6 +24,7 @@ export interface SymbolPin {
   at: [number, number];
   angle: number;
   length: number;
+  unit?: number;
 }
 
 export interface FootprintPad {
@@ -31,6 +34,8 @@ export interface FootprintPad {
   size: [number, number];
   angle: number;
   roundrect_rratio: number;
+  pad_type?: string;
+  drill?: number[];
 }
 
 export interface BoundingBox {
@@ -47,4 +52,8 @@ export interface LibraryItemPayload {
   graphics: GraphicItem[];
   pins: SymbolPin[];
   pads: FootprintPad[];
+  unit_count?: number;
+  pin_names_offset?: number;
+  pin_names_hide?: boolean;
+  pin_numbers_hide?: boolean;
 }

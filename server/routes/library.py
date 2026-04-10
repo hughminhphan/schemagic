@@ -34,6 +34,7 @@ def _to_pydantic_payload(rp):
             pts=g.pts or [], center=g.center or [], radius=g.radius or 0.0,
             at=g.at or [], angle=g.angle or 0.0, text=g.text or "",
             stroke_width=g.stroke_width or 0.0, fill=g.fill or "",
+            font_size=g.font_size or 0.0, unit=g.unit or 0,
         ))
 
     pins = []
@@ -41,6 +42,7 @@ def _to_pydantic_payload(rp):
         pins.append(SymbolPin(
             number=p.number, name=p.name, pin_type=p.pin_type,
             shape=p.shape, at=p.at, angle=p.angle, length=p.length,
+            unit=p.unit or 0,
         ))
 
     pads = []
@@ -48,11 +50,16 @@ def _to_pydantic_payload(rp):
         pads.append(FootprintPad(
             number=p.number, shape=p.shape, at=p.at,
             size=p.size, angle=p.angle, roundrect_rratio=p.roundrect_rratio,
+            pad_type=p.pad_type or "smd", drill=p.drill or [],
         ))
 
     return LibraryItemPayload(
         kind=rp.kind, found=rp.found, bounding_box=bbox,
         graphics=graphics, pins=pins, pads=pads,
+        unit_count=rp.unit_count,
+        pin_names_offset=rp.pin_names_offset,
+        pin_names_hide=rp.pin_names_hide,
+        pin_numbers_hide=rp.pin_numbers_hide,
     )
 
 

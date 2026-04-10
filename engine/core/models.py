@@ -10,6 +10,7 @@ class PinInfo:
     description: str = ""
     alt_numbers: List[str] = field(default_factory=list)  # extra pin numbers consolidated into this pin
     alt_functions: List[str] = field(default_factory=list)  # alternate functions (MCU GPIO muxing, etc.)
+    is_hidden: bool = False  # hidden pins (e.g. thermal pad -> GND, not shown on symbol)
 
 
 @dataclass

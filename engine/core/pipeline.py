@@ -205,8 +205,8 @@ class Pipeline:
             pins = self._ai_pins
             confidence = 0.9
         elif (self._ai_pins and not self._ai_pin_package
-              and len(self._ai_pins) == selected_package.pin_count):
-            # Initial extraction matches the selected package pin count - use as-is
+              and abs(len(self._ai_pins) - selected_package.pin_count) <= 1):
+            # Initial extraction matches the selected package pin count (±1 for EP) - use as-is
             pins = self._ai_pins
             confidence = 0.9
             self._ai_pin_package = selected_package.name
@@ -249,6 +249,23 @@ class Pipeline:
                 if ":" in fp_str:
                     match.footprint_lib, match.footprint_name = fp_str.split(":", 1)
                     match.footprint_score = 50.0
+
+        # Detect thermal pads from footprint and add as hidden GND pins
+        if match.footprint_lib and match.footprint_name:
+            thermal_pads = self.index.detect_thermal_pads(
+                match.footprint_lib, match.footprint_name
+            )
+            pin_numbers = {p.number for p in datasheet.pins}
+            for pad_num in thermal_pads:
+                if pad_num not in pin_numbers:
+                    datasheet.pins.append(PinInfo(
+                        number=pad_num,
+                        name="GND",
+                        pin_type="power_in",
+                        description="Thermal pad",
+                        is_hidden=True,
+                    ))
+                    self._status(f"Detected thermal pad (pin {pad_num}) -> GND")
 
         self._status("Ready for pin review")
         return datasheet, match, candidates, suffix_code

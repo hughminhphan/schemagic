@@ -7,6 +7,7 @@ import PartInput from "@/components/app/PartInput";
 import StatusStream from "@/components/app/StatusStream";
 import PinReviewVisual from "@/components/app/PinReviewVisual";
 import DownloadPanel from "@/components/app/DownloadPanel";
+import PackageSelectPanel from "@/components/app/PackageSelectPanel";
 
 function WizardRouter() {
   const state = useWizard();
@@ -24,6 +25,8 @@ function WizardRouter() {
 
       <PartInput />
       <StatusStream />
+
+      {state.step === "PACKAGE_SELECT" && <PackageSelectPanel />}
 
       {(state.step === "PIN_REVIEW" || state.step === "GENERATING") && (
         <PinReviewVisual />

@@ -314,3 +314,53 @@ class LibraryIndex:
             if entry["name"] == footprint_name:
                 return entry
         return None
+
+    def get_footprint_path(self, lib_name, footprint_name):
+        """Get the filesystem path for a footprint .kicad_mod file."""
+        if not FOOTPRINT_DIR:
+            return None
+        fp_path = os.path.join(
+            FOOTPRINT_DIR, f"{lib_name}.pretty", f"{footprint_name}.kicad_mod"
+        )
+        return fp_path if os.path.isfile(fp_path) else None
+
+    def detect_thermal_pads(self, lib_name, footprint_name):
+        """Detect thermal/exposed pads in a footprint file.
+
+        Returns a list of pad number strings that are thermal pads.
+        Detection uses: (1) pad_prop_heatsink property, or (2) large pad
+        missing F.Paste layer (heuristic for exposed pads).
+        """
+        fp_path = self.get_footprint_path(lib_name, footprint_name)
+        if not fp_path:
+            return []
+
+        with open(fp_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        thermal_pads = []
+        # Parse each pad block
+        # Match pad with number, type, and its full block content
+        pad_pattern = re.compile(
+            r'\(pad\s+"([^"]+)"\s+(smd|thru_hole)\s+\w+\s*\n?(.*?)\)\s*(?=\(pad\s|\(model\s|\(fp_|$)',
+            re.DOTALL,
+        )
+        for m in pad_pattern.finditer(content):
+            pad_num = m.group(1)
+            pad_body = m.group(3)
+
+            # Check for explicit heatsink property
+            if "pad_prop_heatsink" in pad_body:
+                thermal_pads.append(pad_num)
+                continue
+
+            # Heuristic: SMD pad with F.Cu and F.Mask but no F.Paste, and large size
+            if "F.Paste" not in pad_body and "F.Cu" in pad_body:
+                size_m = re.search(r'\(size\s+([\d.]+)\s+([\d.]+)\)', pad_body)
+                if size_m:
+                    w, h = float(size_m.group(1)), float(size_m.group(2))
+                    # Thermal pads are typically > 1mm in both dimensions
+                    if w > 1.0 and h > 1.0:
+                        thermal_pads.append(pad_num)
+
+        return thermal_pads

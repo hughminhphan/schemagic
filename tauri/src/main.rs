@@ -6,7 +6,7 @@ mod sidecar;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{atomic::{AtomicU16, Ordering}, Arc, Mutex};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -179,6 +179,9 @@ fn show_main_window(app: &tauri::AppHandle) {
 }
 
 fn main() {
+    let shared_port = Arc::new(AtomicU16::new(0));
+    let port_for_pageload = shared_port.clone();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -195,7 +198,16 @@ fn main() {
             mark_setup_done,
             get_api_port,
         ])
-        .setup(|app| {
+        .on_page_load(move |webview, _payload| {
+            let p = port_for_pageload.load(Ordering::Relaxed);
+            if p > 0 {
+                let _ = webview.eval(&format!(
+                    "window.__SCHEMAGIC_API_PORT__ = {};",
+                    p
+                ));
+            }
+        })
+        .setup(move |app| {
             let handle = app.handle().clone();
 
             // Start the Python sidecar
@@ -208,14 +220,12 @@ fn main() {
                 }
             };
             let port = sidecar_state.port;
+            shared_port.store(port, Ordering::Relaxed);
             app.manage(Mutex::new(sidecar_state));
 
-            // Inject the API port into the webview
+            // Also inject immediately for the initial page load
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.eval(&format!(
-                    "window.__SCHEMAGIC_API_PORT__ = {};",
-                    port
-                ));
+                let _ = window.eval(&format!("window.__SCHEMAGIC_API_PORT__ = {};", port));
             }
 
             // Load config and register global shortcut

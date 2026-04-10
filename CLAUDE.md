@@ -81,20 +81,26 @@ python -m pytest engine/tests/test_edge_cases.py -v    # unit tests
 python engine/tests/test_harness.py --strict            # integration tests
 ```
 
-## Running the desktop app (dev)
+## Testing after code changes
+
+**Always build and install the real app. Never use `npm run dev` or `cargo run` for testing.**
 
 ```bash
-# 1. Build the sidecar (first time only, or after engine/server changes):
-./scripts/build-sidecar-macos.sh
+# Build everything and install to /Applications:
+./scripts/build-and-install.sh
+```
 
-# 2. Symlink sidecar for dev mode:
+This rebuilds the sidecar, frontend, and Tauri app, then installs to `/Applications/scheMAGIC.app`. Open it from Spotlight or Finder to test like a real user.
+
+**Claude Code: after finishing any code changes to engine/, server/, web/, or tauri/, run `./scripts/build-and-install.sh` automatically before testing. Never start a localhost dev server for testing.**
+
+### Dev mode (only for rapid Rust iteration)
+
+If iterating purely on Tauri Rust code (not engine/server/web):
+```bash
 mkdir -p tauri/target/debug/binaries
 ln -sf "$(pwd)/tauri/sidecar/schemagic-server-aarch64-apple-darwin" tauri/target/debug/binaries/
-
-# 3. Build the frontend:
 cd web && npm run build && cd ..
-
-# 4. Run:
 cd tauri && cargo run
 ```
 
@@ -153,6 +159,8 @@ cd tauri && cargo tauri build
 - Don't reference `ds2kicad` anywhere - the project is scheMAGIC
 - Don't edit `engine/` imports to absolute - they use relative `..` imports within the package
 - Don't hardcode API URLs in web/ - use `apiBase()` from `web/lib/api-base.ts`
+- Don't use `npm run dev` or localhost for testing - always build and install the real .app
+- Don't use `cargo run` for testing unless purely iterating on Rust code
 - Don't use PlatformIO Python for PyInstaller builds - needs Homebrew framework Python
 
 ## Payments and licensing

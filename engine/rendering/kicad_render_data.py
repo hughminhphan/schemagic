@@ -36,10 +36,12 @@ class GraphicItem:
     text = ""
     stroke_width = 0.0
     fill = "none"
+    font_size = 0.0
+    unit = 0           # 0 = shared across all units
 
     def __init__(self, type="", layer="", start=None, end=None, mid=None,
                  pts=None, center=None, radius=0.0, at=None, angle=0.0,
-                 text="", stroke_width=0.0, fill="none"):
+                 text="", stroke_width=0.0, fill="none", font_size=0.0, unit=0):
         self.type = type
         self.layer = layer
         self.start = start
@@ -53,6 +55,8 @@ class GraphicItem:
         self.text = text
         self.stroke_width = float(stroke_width)
         self.fill = fill
+        self.font_size = float(font_size)
+        self.unit = int(unit)
 
 
 @dataclass
@@ -64,9 +68,10 @@ class SymbolPin:
     at = None          # [x, y]
     angle = 0.0
     length = 2.54
+    unit = 0           # 0 = shared across all units
 
     def __init__(self, number="", name="", pin_type="unspecified", shape="line",
-                 at=None, angle=0.0, length=2.54):
+                 at=None, angle=0.0, length=2.54, unit=0):
         self.number = number
         self.name = name
         self.pin_type = pin_type
@@ -74,6 +79,7 @@ class SymbolPin:
         self.at = at or [0.0, 0.0]
         self.angle = float(angle)
         self.length = float(length)
+        self.unit = int(unit)
 
 
 @dataclass
@@ -84,15 +90,19 @@ class FootprintPad:
     size = None        # [w, h]
     angle = 0.0
     roundrect_rratio = 0.0
+    pad_type = "smd"   # smd, thru_hole, np_thru_hole, connect
+    drill = None       # [diameter] or [width, height] for oval drill
 
     def __init__(self, number="", shape="rect", at=None, size=None,
-                 angle=0.0, roundrect_rratio=0.0):
+                 angle=0.0, roundrect_rratio=0.0, pad_type="smd", drill=None):
         self.number = number
         self.shape = shape
         self.at = at or [0.0, 0.0]
         self.size = size or [1.0, 1.0]
         self.angle = float(angle)
         self.roundrect_rratio = float(roundrect_rratio)
+        self.pad_type = pad_type
+        self.drill = drill or []
 
 
 @dataclass
@@ -103,12 +113,22 @@ class RenderPayload:
     graphics = None       # list of GraphicItem
     pins = None           # list of SymbolPin (symbols only)
     pads = None           # list of FootprintPad (footprints only)
+    unit_count = 1
+    pin_names_offset = 0.508
+    pin_names_hide = False
+    pin_numbers_hide = False
 
     def __init__(self, kind="symbol", found=False, bounding_box=None,
-                 graphics=None, pins=None, pads=None):
+                 graphics=None, pins=None, pads=None,
+                 unit_count=1, pin_names_offset=0.508,
+                 pin_names_hide=False, pin_numbers_hide=False):
         self.kind = kind
         self.found = found
         self.bounding_box = bounding_box
         self.graphics = graphics or []
         self.pins = pins or []
         self.pads = pads or []
+        self.unit_count = int(unit_count)
+        self.pin_names_offset = float(pin_names_offset)
+        self.pin_names_hide = bool(pin_names_hide)
+        self.pin_numbers_hide = bool(pin_numbers_hide)

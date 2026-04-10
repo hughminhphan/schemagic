@@ -7,6 +7,7 @@ class PinInfoSchema(BaseModel):
     pin_type: str = "unspecified"
     description: str = ""
     alt_numbers: list[str] = []
+    is_hidden: bool = False
 
 
 class PackageInfoSchema(BaseModel):
@@ -59,6 +60,7 @@ class SelectPackageResponse(BaseModel):
 class FinalizeRequest(BaseModel):
     job_id: str
     pins: list[PinInfoSchema]
+    project_dir: str | None = None  # KiCad project dir for direct import
 
 
 class FileInfo(BaseModel):
@@ -75,12 +77,13 @@ class FinalizeResponse(BaseModel):
     job_id: str
     files: list[FileInfo]
     model: ModelInfo | None = None
+    imported: bool = False  # True if saved directly to a KiCad project
 
 
 # --- Library item rendering payload ---
 
 class GraphicItem(BaseModel):
-    type: str  # rectangle, polyline, arc, circle, line, poly, text
+    type: str  # rectangle, polyline, arc, circle, line, poly, text, bezier
     layer: str = ""
     start: list[float] = []
     end: list[float] = []
@@ -93,6 +96,8 @@ class GraphicItem(BaseModel):
     text: str = ""
     stroke_width: float = 0.0
     fill: str = ""  # none, outline, background
+    font_size: float = 0.0
+    unit: int = 0
 
 
 class SymbolPin(BaseModel):
@@ -103,6 +108,7 @@ class SymbolPin(BaseModel):
     at: list[float]
     angle: float
     length: float
+    unit: int = 0
 
 
 class FootprintPad(BaseModel):
@@ -112,6 +118,8 @@ class FootprintPad(BaseModel):
     size: list[float]
     angle: float = 0.0
     roundrect_rratio: float = 0.0
+    pad_type: str = "smd"
+    drill: list[float] = []
 
 
 class BoundingBox(BaseModel):
@@ -128,3 +136,7 @@ class LibraryItemPayload(BaseModel):
     graphics: list[GraphicItem] = []
     pins: list[SymbolPin] = []
     pads: list[FootprintPad] = []
+    unit_count: int = 1
+    pin_names_offset: float = 0.508
+    pin_names_hide: bool = False
+    pin_numbers_hide: bool = False

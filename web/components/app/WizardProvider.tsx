@@ -11,6 +11,7 @@ import {
 export type Step =
   | "IDLE"
   | "RUNNING"
+  | "PACKAGE_SELECT"
   | "PIN_REVIEW"
   | "GENERATING"
   | "DONE"
@@ -61,6 +62,11 @@ export interface ModelInfo {
   inferred: boolean;
 }
 
+export interface DetectedProject {
+  dir: string;
+  name: string;
+}
+
 export interface WizardState {
   step: Step;
   jobId: string;
@@ -74,6 +80,7 @@ export interface WizardState {
   error: string;
   logs: string[];
   selectedPinNumber: string | null;
+  detectedProject: DetectedProject | null;
 }
 
 export type WizardAction =
@@ -95,7 +102,8 @@ export type WizardAction =
   | { type: "UPDATE_PIN"; index: number; field: string; value: string }
   | { type: "SELECT_PIN"; pinNumber: string | null }
   | { type: "START_GENERATE" }
-  | { type: "GENERATED"; files: FileInfo[]; model: ModelInfo | null }
+  | { type: "GENERATED"; files: FileInfo[]; model: ModelInfo | null; imported?: boolean }
+  | { type: "DETECT_PROJECT"; project: DetectedProject | null }
   | { type: "ERROR"; message: string }
   | { type: "RESET" };
 
@@ -112,6 +120,7 @@ const initialState: WizardState = {
   error: "",
   logs: [],
   selectedPinNumber: null,
+  detectedProject: null,
 };
 
 function reducer(state: WizardState, action: WizardAction): WizardState {
@@ -125,18 +134,22 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
       };
     case "ADD_LOG":
       return { ...state, logs: [...state.logs, action.message] };
-    case "COMPLETE":
+    case "COMPLETE": {
+      const needsPackageSelect =
+        action.candidates.length > 1 && !action.datasheet.package;
       return {
         ...state,
-        step: "PIN_REVIEW",
+        step: needsPackageSelect ? "PACKAGE_SELECT" : "PIN_REVIEW",
         datasheet: action.datasheet,
         match: action.match,
         pins: action.pins,
         candidates: action.candidates,
       };
+    }
     case "SWITCH_PACKAGE":
       return {
         ...state,
+        step: "PIN_REVIEW",
         datasheet: action.datasheet,
         match: action.match,
         pins: action.pins,
@@ -152,11 +165,18 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
     case "START_GENERATE":
       return { ...state, step: "GENERATING" };
     case "GENERATED":
-      return { ...state, step: "DONE", files: action.files, model: action.model };
+      return {
+        ...state,
+        step: action.imported ? "DONE" : "DONE",
+        files: action.files,
+        model: action.model,
+      };
+    case "DETECT_PROJECT":
+      return { ...state, detectedProject: action.project };
     case "ERROR":
       return { ...state, step: "ERROR", error: action.message };
     case "RESET":
-      return initialState;
+      return { ...initialState, detectedProject: state.detectedProject };
     default:
       return state;
   }

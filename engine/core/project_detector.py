@@ -6,17 +6,19 @@ import sys
 
 
 def _kicad_config_paths():
-    """Return candidate paths for kicad.json in priority order."""
+    """Return candidate paths for kicad.json in priority order (newest first)."""
     paths = []
-    if sys.platform == "darwin":
-        paths.append(os.path.expanduser(
-            "~/Library/Preferences/kicad/8.0/kicad.json"))
-    elif sys.platform == "win32":
-        appdata = os.environ.get("APPDATA", "")
-        if appdata:
-            paths.append(os.path.join(appdata, "kicad", "8.0", "kicad.json"))
-    # Linux / fallback
-    paths.append(os.path.expanduser("~/.config/kicad/8.0/kicad.json"))
+    versions = ["10.0", "9.0", "8.0"]
+    for ver in versions:
+        if sys.platform == "darwin":
+            paths.append(os.path.expanduser(
+                f"~/Library/Preferences/kicad/{ver}/kicad.json"))
+        elif sys.platform == "win32":
+            appdata = os.environ.get("APPDATA", "")
+            if appdata:
+                paths.append(os.path.join(appdata, "kicad", ver, "kicad.json"))
+        # Linux / fallback
+        paths.append(os.path.expanduser(f"~/.config/kicad/{ver}/kicad.json"))
     return paths
 
 

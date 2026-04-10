@@ -33,7 +33,9 @@ export default function PartInput() {
         let detail = `Server error (${res.status})`;
         try {
           const errJson = JSON.parse(text);
-          detail = errJson.detail || detail;
+          const raw = errJson.detail ?? errJson.message ?? errJson.error;
+          if (typeof raw === "string") detail = raw;
+          else if (raw) detail = JSON.stringify(raw);
         } catch {
           if (text) detail = text;
         }
@@ -43,6 +45,19 @@ export default function PartInput() {
       const jobId = data.job_id;
 
       dispatch({ type: "START_RUN", jobId, partNumber: trimmed });
+
+      // Detect KiCad project in parallel with pipeline
+      fetch(`${apiBase()}/api/kicad-project`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.project_dir) {
+            dispatch({
+              type: "DETECT_PROJECT",
+              project: { dir: data.project_dir, name: data.project_name || data.project_dir },
+            });
+          }
+        })
+        .catch(() => {}); // non-critical
 
       const sseRes = await fetch(`${apiBase()}/api/status/${jobId}`);
       if (!sseRes.ok || !sseRes.body) {
@@ -83,7 +98,7 @@ export default function PartInput() {
                 });
                 return;
               case "error":
-                dispatch({ type: "ERROR", message: d.message });
+                dispatch({ type: "ERROR", message: typeof d.message === "string" ? d.message : JSON.stringify(d.message) });
                 return;
             }
             currentEvent = "";
@@ -93,7 +108,7 @@ export default function PartInput() {
     } catch (err) {
       dispatch({
         type: "ERROR",
-        message: err instanceof Error ? err.message : "Failed to start pipeline",
+        message: err instanceof Error ? err.message : String(err ?? "Failed to start pipeline"),
       });
     }
   }

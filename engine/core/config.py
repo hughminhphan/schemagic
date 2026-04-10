@@ -162,6 +162,8 @@ PACKAGE_MAP = {
     "MSOP-10": "Package_SO:MSOP-10_3x3mm_P0.5mm",
     # WQFN
     "WQFN-16": "Package_DFN_QFN:Texas_RTE0016D_WQFN-16-1EP_3x3mm_P0.5mm_EP0.8x0.8mm",
+    "WQFN-40": "Package_DFN_QFN:Texas_RNQ0040A_WQFN-40-1EP_6x4mm_P0.4mm_EP4.7x2.7mm",
+    "QFN-40": "Package_DFN_QFN:QFN-40-1EP_5x5mm_P0.4mm_EP3.1x3.1mm",
     # WSON
     "WSON-8": "Package_SON:WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm",
     "WSON-10": "Package_SON:WSON-10-1EP_2x3mm_P0.5mm_EP0.84x2.4mm",

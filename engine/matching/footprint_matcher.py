@@ -24,20 +24,20 @@ def match_footprint(datasheet: DatasheetData, index: LibraryIndex) -> tuple:
 
     pin_count = package.pin_count or len(datasheet.pins)
 
-    # Strategy 1: TI code direct lookup in PACKAGE_MAP
-    if package.ti_code and package.ti_code in PACKAGE_MAP:
-        fp_str = PACKAGE_MAP[package.ti_code]
-        lib, name = fp_str.split(":", 1)
-        if _footprint_exists(lib, name):
-            return lib, name, 100.0
-
-    # Strategy 2: Package name lookup in PACKAGE_MAP
+    # Strategy 1: Package name lookup in PACKAGE_MAP (most reliable)
     pkg_name = package.name.upper()
     for key, fp_str in PACKAGE_MAP.items():
         if key.upper() == pkg_name:
             lib, name = fp_str.split(":", 1)
             if _footprint_exists(lib, name):
-                return lib, name, 95.0
+                return lib, name, 100.0
+
+    # Strategy 2: TI code direct lookup in PACKAGE_MAP
+    if package.ti_code and package.ti_code in PACKAGE_MAP:
+        fp_str = PACKAGE_MAP[package.ti_code]
+        lib, name = fp_str.split(":", 1)
+        if _footprint_exists(lib, name):
+            return lib, name, 95.0
 
     # Strategy 3: Search the library index by package name
     search_terms = _generate_search_terms(package)
@@ -88,5 +88,23 @@ def _generate_search_terms(package: PackageInfo):
     # Normalized variants
     terms.append(name.replace("-", "").replace("_", ""))
     terms.append(name.replace("-", "_"))
+
+    # Cross-reference common package family aliases
+    # HTSSOP <-> TSSOP-EP, WQFN <-> QFN, VQFN <-> QFN
+    upper = name.upper()
+    if upper.startswith("HTSSOP"):
+        suffix = upper[6:]  # e.g. "-40"
+        terms.append(f"TSSOP{suffix}")
+    elif upper.startswith("WQFN"):
+        suffix = upper[4:]
+        terms.append(f"QFN{suffix}")
+        terms.append(f"VQFN{suffix}")
+    elif upper.startswith("VQFN"):
+        suffix = upper[4:]
+        terms.append(f"QFN{suffix}")
+        terms.append(f"WQFN{suffix}")
+    elif upper.startswith("TQFN"):
+        suffix = upper[4:]
+        terms.append(f"QFN{suffix}")
 
     return terms

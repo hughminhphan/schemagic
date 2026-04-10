@@ -63,9 +63,10 @@ PACKAGE RULES:
 
 PIN RULES:
 - Use pin type from ONLY these values: input, output, bidirectional, power_in, power_out, passive, open_collector, open_emitter, no_connect
-- Include thermal/exposed pads as a pin with name "EP" and type "passive"
+- IMPORTANT: If the package has a thermal/exposed pad, include it as an ADDITIONAL pin with name "EP" and type "power_in". The exposed pad is typically connected to GND.
 - Only return pins for ONE package variant (the smallest pin count package)
 - Use exact pin names from the datasheet (VCC, GND, PA0, etc.)
+- CRITICAL: Every pin MUST have a unique pin number. No two pins may share the same number. Double-check the pin table if numbers seem duplicated.
 
 Datasheet text:
 {text}"""
@@ -168,12 +169,13 @@ def _build_page_text(page_texts):
     return "\n\n".join(text_parts) if text_parts else ""
 
 
-_PACKAGE_PIN_PROMPT = """You are an expert component datasheet parser for KiCad EDA. Extract pin assignments for part number "{part_number}" specifically for the "{package_name}" package ({pin_count} pins).
+_PACKAGE_PIN_PROMPT = """You are an expert component datasheet parser for KiCad EDA. Extract pin assignments for part number "{part_number}" specifically for the "{package_name}" package ({pin_count} signal pins).
 
 PIN RULES:
 - Use pin type from ONLY these values: input, output, bidirectional, power_in, power_out, passive, open_collector, open_emitter, no_connect
-- Include thermal/exposed pads as a pin with name "EP" and type "passive"
+- IMPORTANT: If the package has a thermal/exposed pad, include it as an ADDITIONAL pin beyond the {pin_count} signal pins, with name "EP" and type "power_in". The exposed pad is typically connected to GND.
 - Use exact pin names from the datasheet (VCC, GND, PA0, etc.)
+- CRITICAL: Every pin MUST have a unique pin number. No two pins may share the same number. Double-check the pin table if numbers seem duplicated.
 
 Datasheet text:
 {text}"""
@@ -309,8 +311,14 @@ def _sanitize_pin_name(name):
 
 
 def _parse_pins(pin_data_list):
-    """Parse raw pin dicts from Gemini into PinInfo objects."""
+    """Parse raw pin dicts from Gemini into PinInfo objects.
+
+    Deduplicates pin numbers: if two different-named pins share a number,
+    the first occurrence wins. Same-name pins sharing a number are merged
+    (legitimate multi-pad pins like GND).
+    """
     pins = []
+    seen_numbers = {}  # number -> index in pins list
     for pin_data in pin_data_list:
         number = str(pin_data.get("number", ""))
         name = _sanitize_pin_name(pin_data.get("name", ""))
@@ -319,6 +327,19 @@ def _parse_pins(pin_data_list):
                 pin_data.get("type", "").lower().replace(" ", "_"),
                 "passive",
             )
+            if number in seen_numbers:
+                existing = pins[seen_numbers[number]]
+                if existing.name.upper() == name.upper():
+                    # Same name, same number - legitimate duplicate (e.g. GND on multiple pads)
+                    continue
+                else:
+                    # Different name, same number - Gemini error, skip the duplicate
+                    logger.warning(
+                        "Duplicate pin number %s: '%s' conflicts with '%s', keeping '%s'",
+                        number, name, existing.name, existing.name,
+                    )
+                    continue
+            seen_numbers[number] = len(pins)
             pins.append(PinInfo(
                 number=number,
                 name=name,

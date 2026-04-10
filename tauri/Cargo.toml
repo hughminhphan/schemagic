@@ -1,6 +1,6 @@
 [package]
 name = "schemagic"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 description = "scheMAGIC - Datasheet to KiCad symbol & footprint generator"
 authors = ["Hugh Phan"]

@@ -73,10 +73,20 @@ def _save_symbol_to_lib(lib_path, symbol_node):
     """Add or replace a symbol in the project-local .kicad_sym library."""
     sym_name = symbol_node.get_value(0)
 
+    # Strip embedded_fonts from cloned symbols (KiCad version mismatch issue)
+    ef = symbol_node.find_child("embedded_fonts")
+    if ef:
+        symbol_node.remove_child(ef)
+
     if os.path.isfile(lib_path):
         # Load existing library
         nodes = parse_file(lib_path)
         root = nodes[0]
+
+        # Update version to KiCad 10 format
+        ver = root.find_child("version")
+        if ver:
+            ver.set_value(0, "20251024")
 
         # Remove existing symbol with same name
         for existing in root.find_all("symbol"):
@@ -84,12 +94,18 @@ def _save_symbol_to_lib(lib_path, symbol_node):
                 root.remove_child(existing)
                 break
 
+        # Strip embedded_fonts from all existing symbols too
+        for existing in root.find_all("symbol"):
+            ef = existing.find_child("embedded_fonts")
+            if ef:
+                existing.remove_child(ef)
+
         # Add the new symbol
         root.add_child(symbol_node)
     else:
         # Create new library file
         root = SExprNode("kicad_symbol_lib", [])
-        root.add_child(SExprNode("version", ["20231120"]))
+        root.add_child(SExprNode("version", ["20251024"]))
         root.add_child(SExprNode("generator", ["schemagic"]))
         root.add_child(SExprNode("generator_version", ["1.0"]))
         root.add_child(symbol_node)
@@ -126,7 +142,17 @@ def _ensure_lib_table(table_path, table_tag, lib_name, uri, descr):
             for lib in root.find_all("lib"):
                 name_node = lib.find_child("name")
                 if name_node and name_node.get_value(0) == lib_name:
-                    return  # already registered
+                    # Verify URI is correct, update if stale
+                    uri_node = lib.find_child("uri")
+                    if uri_node and uri_node.get_value(0) == uri:
+                        return  # already registered with correct URI
+                    # Replace the stale entry
+                    root.remove_child(lib)
+                    root.add_child(_make_lib_entry(lib_name, uri, descr))
+                    text = serialize(nodes)
+                    with open(table_path, "w", encoding="utf-8") as f:
+                        f.write(text)
+                    return
             # Add our entry
             root.add_child(_make_lib_entry(lib_name, uri, descr))
             text = serialize(nodes)

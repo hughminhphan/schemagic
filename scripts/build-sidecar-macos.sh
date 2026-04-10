@@ -55,3 +55,8 @@ mv "tauri/sidecar/schemagic-server" "tauri/sidecar/schemagic-server-${TRIPLE}"
 
 echo "==> Sidecar built: tauri/sidecar/schemagic-server-${TRIPLE}"
 echo "    Size: $(du -h "tauri/sidecar/schemagic-server-${TRIPLE}" | cut -f1)"
+
+# Symlink to tauri/binaries/ where Tauri's externalBin expects it
+# (cp breaks PyInstaller ad-hoc signatures on macOS - must use symlinks)
+ln -sf "$(pwd)/tauri/sidecar/schemagic-server-${TRIPLE}" "tauri/binaries/schemagic-server-${TRIPLE}"
+echo "==> Symlinked to tauri/binaries/"

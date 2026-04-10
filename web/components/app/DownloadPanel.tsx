@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JSZip from "jszip";
 import { useWizard, useWizardDispatch } from "./WizardProvider";
 import { apiBase } from "@/lib/api-base";
@@ -10,10 +10,46 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
+declare global {
+  interface Window {
+    __TAURI__?: {
+      core?: {
+        invoke: (cmd: string, args?: Record<string, unknown>) => Promise<unknown>;
+      };
+    };
+  }
+}
+
+function minimizeWindow() {
+  try {
+    window.__TAURI__?.core?.invoke("plugin:window|minimize", {
+      label: "main",
+    });
+  } catch {
+    // Not in Tauri or permission missing - ignore
+  }
+}
+
 export default function DownloadPanel() {
-  const { files, jobId, partNumber, datasheet, model } = useWizard();
+  const { files, jobId, partNumber, datasheet, model, detectedProject } =
+    useWizard();
   const dispatch = useWizardDispatch();
   const [downloading, setDownloading] = useState(false);
+  const [imported, setImported] = useState(false);
+
+  // Detect if this was a direct import (files were saved to project, not temp)
+  const wasImported = detectedProject && files.length > 0;
+
+  // Auto-minimize after successful import
+  useEffect(() => {
+    if (wasImported && !imported) {
+      setImported(true);
+      const timer = setTimeout(() => {
+        minimizeWindow();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [wasImported, imported]);
 
   if (files.length === 0) return null;
 
@@ -27,7 +63,9 @@ export default function DownloadPanel() {
 
       await Promise.all(
         files.map(async (f) => {
-          const res = await fetch(`${apiBase()}/api/download/${jobId}/${f.filename}`);
+          const res = await fetch(
+            `${apiBase()}/api/download/${jobId}/${f.filename}`
+          );
           const blob = await res.blob();
           folder.file(f.filename, blob);
         })
@@ -45,6 +83,46 @@ export default function DownloadPanel() {
     }
   }
 
+  // Import success view
+  if (wasImported) {
+    return (
+      <div className="mt-[48px]">
+        <div className="border border-green-500/30 bg-green-500/5 p-[24px] mb-[24px]">
+          <p className="font-mono text-sm text-green-400 mb-[8px]">
+            Imported to {detectedProject.name}
+          </p>
+          <p className="text-xs text-text-secondary">
+            {files.length} file{files.length !== 1 ? "s" : ""} saved. Press A in
+            eeschema to add the symbol.
+          </p>
+        </div>
+
+        {/* 3D Model info */}
+        {model?.ref && (
+          <div className="border border-border bg-surface-raised p-[16px] mb-[24px]">
+            <p className="font-mono text-xs text-text-secondary uppercase tracking-wider mb-[8px]">
+              3D Model
+            </p>
+            <p className="font-mono text-sm text-text-primary">{model.ref}</p>
+            <p className="text-xs text-text-secondary mt-[4px]">
+              {model.inferred
+                ? "Inferred from footprint naming convention. Verify in KiCad's 3D viewer."
+                : "Resolves automatically from your KiCad installation."}
+            </p>
+          </div>
+        )}
+
+        <button
+          onClick={() => dispatch({ type: "RESET" })}
+          className="border border-border h-[48px] px-[24px] text-sm text-text-secondary hover:text-text-primary hover:border-accent transition-colors"
+        >
+          Generate another
+        </button>
+      </div>
+    );
+  }
+
+  // Download fallback view (no project detected)
   return (
     <div className="mt-[48px]">
       <p className="font-mono text-xs text-text-secondary uppercase tracking-wider mb-[12px]">
@@ -64,6 +142,10 @@ export default function DownloadPanel() {
           </div>
         ))}
       </div>
+
+      <p className="text-xs text-text-secondary mb-[16px]">
+        Open a KiCad project to enable one-click import.
+      </p>
 
       <div className="flex gap-[24px]">
         <button
@@ -97,7 +179,8 @@ export default function DownloadPanel() {
           </>
         ) : (
           <p className="text-xs text-yellow-400">
-            No 3D model reference found. Footprint will appear flat in KiCad's 3D viewer.
+            No 3D model reference found. Footprint will appear flat in KiCad's
+            3D viewer.
           </p>
         )}
       </div>
