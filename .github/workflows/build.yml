@@ -62,7 +62,7 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "scheMAGIC ${{ github.ref_name }}"
           releaseBody: "See the assets for download links."
-          releaseDraft: true
+          releaseDraft: false
 
   build-windows:
     runs-on: windows-latest
@@ -104,4 +104,4 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "scheMAGIC ${{ github.ref_name }}"
           releaseBody: "See the assets for download links."
-          releaseDraft: true
+          releaseDraft: false
