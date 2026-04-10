@@ -1,6 +1,7 @@
 "use client";
 
 import Nav from "@/components/Nav";
+import LicenseGate from "@/components/app/LicenseGate";
 import { WizardProvider, useWizard } from "@/components/app/WizardProvider";
 import PartInput from "@/components/app/PartInput";
 import StatusStream from "@/components/app/StatusStream";
@@ -58,13 +59,15 @@ function WizardRouter() {
 
 export default function AppPage() {
   return (
-    <WizardProvider>
-      <div className="grid-bg min-h-screen">
-        <Nav />
-        <main className="mx-auto max-w-6xl px-6 py-[96px]">
-          <WizardRouter />
-        </main>
-      </div>
-    </WizardProvider>
+    <LicenseGate>
+      <WizardProvider>
+        <div className="grid-bg min-h-screen">
+          <Nav />
+          <main className="mx-auto max-w-6xl px-6 py-[96px]">
+            <WizardRouter />
+          </main>
+        </div>
+      </WizardProvider>
+    </LicenseGate>
   );
 }

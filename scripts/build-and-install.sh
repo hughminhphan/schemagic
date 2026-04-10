@@ -11,8 +11,17 @@ echo "==> Step 1/4: Building Python sidecar..."
 ./scripts/build-sidecar-macos.sh
 
 echo ""
-echo "==> Step 2/4: Building frontend..."
-cd web && npm run build && cd "$REPO_ROOT"
+echo "==> Step 2/4: Building frontend (static export for Tauri)..."
+# Temporarily move API routes out - they only work on Vercel (server mode),
+# not in static export mode used by Tauri.
+if [ -d "web/app/api" ]; then
+    mv web/app/api web/app/_api_server_only
+fi
+cd web && STATIC_EXPORT=1 npm run build && cd "$REPO_ROOT"
+# Restore API routes
+if [ -d "web/app/_api_server_only" ]; then
+    mv web/app/_api_server_only web/app/api
+fi
 
 echo ""
 echo "==> Step 3/4: Building Tauri app..."

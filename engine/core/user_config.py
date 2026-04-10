@@ -15,6 +15,9 @@ CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 _DEFAULTS = {
     "gemini_api_key": "",
     "gemini_model": "gemini-2.5-flash-lite",
+    "email": "",
+    "license_status": "unknown",
+    "last_check": 0,
 }
 
 

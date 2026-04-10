@@ -28,6 +28,12 @@ struct AppConfig {
     gemini_api_key: String,
     #[serde(default = "default_gemini_model")]
     gemini_model: String,
+    #[serde(default)]
+    email: String,
+    #[serde(default = "default_license_status")]
+    license_status: String,
+    #[serde(default)]
+    last_check: i64,
 }
 
 fn default_modifiers() -> Vec<String> {
@@ -39,6 +45,9 @@ fn default_key() -> String {
 fn default_gemini_model() -> String {
     "gemini-2.5-flash-lite".into()
 }
+fn default_license_status() -> String {
+    "unknown".into()
+}
 
 impl Default for AppConfig {
     fn default() -> Self {
@@ -48,6 +57,9 @@ impl Default for AppConfig {
             start_at_login: false,
             gemini_api_key: String::new(),
             gemini_model: default_gemini_model(),
+            email: String::new(),
+            license_status: default_license_status(),
+            last_check: 0,
         }
     }
 }

@@ -46,6 +46,7 @@ Key files:
 | Fix the desktop app shell, tray, hotkey | `tauri/` |
 | Fix the API endpoints | `server/` |
 | Fix the UI (desktop + web) | `web/` |
+| Fix payments/licensing | `web/lib/stripe.ts`, `web/app/api/payments/`, `web/hooks/useLicense.ts` |
 
 ## Engine structure
 
@@ -115,7 +116,7 @@ python server/main.py
 cd web && NEXT_PUBLIC_API_URL=http://localhost:8000 npm run dev
 ```
 
-Note: dev mode needs `output: "export"` removed from next.config.ts to use the dev server with rewrites. The static export config is for Tauri only.
+Note: `output: "export"` is now conditional via `STATIC_EXPORT=1` env var. Dev mode works without it. The static export config is for Tauri only.
 
 ## Building for distribution
 
@@ -154,8 +155,59 @@ cd tauri && cargo tauri build
 - Don't hardcode API URLs in web/ - use `apiBase()` from `web/lib/api-base.ts`
 - Don't use PlatformIO Python for PyInstaller builds - needs Homebrew framework Python
 
+## Payments and licensing
+
+Stripe subscription ($5 AUD/month) with 3 free generations for unlicensed users.
+
+### How it works
+
+```
+App launch -> LicenseGate checks schemagic.design/api/payments/check?email=...
+  -> No email yet: show EmailPrompt
+  -> Under free limit: show wizard (consumeGeneration() called before each job)
+  -> Over limit + not subscribed: show Paywall -> Stripe Checkout in browser
+  -> Subscribed: unlimited access
+```
+
+### Key files
+
+| File | Purpose |
+|------|---------|
+| `web/lib/stripe.ts` | Stripe client + business logic (server-side only) |
+| `web/lib/payments-types.ts` | Shared TypeScript types |
+| `web/lib/payments-constants.ts` | Client-side constants (FREE_GENERATION_LIMIT) |
+| `web/app/api/payments/*/route.ts` | 5 API routes: check, checkout, portal, webhook, generation |
+| `web/hooks/useLicense.ts` | React hook managing all license state + Tauri config persistence |
+| `web/components/app/LicenseGate.tsx` | Gate component wrapping the wizard |
+| `web/components/app/LicenseContext.tsx` | React context for deep components (e.g. PartInput) |
+| `web/components/app/EmailPrompt.tsx` | First-launch email entry |
+| `web/components/app/Paywall.tsx` | Free tier exhausted screen |
+| `web/components/app/LicenseBadge.tsx` | "Pro" / "2/3 free" indicator |
+
+### Dual build modes
+
+`next.config.ts` uses `STATIC_EXPORT=1` to toggle between:
+- **Static export** (Tauri): no API routes, pure HTML/JS/CSS. `build-and-install.sh` sets this and temporarily moves `web/app/api/` out during build.
+- **Server mode** (Vercel): API routes work, deployed at schemagic.design.
+
+### Stripe data model
+
+Stripe is the database. No external DB. Customer metadata stores `free_generations` count. License status checked live from Stripe on each app launch with 24h localStorage cache fallback.
+
+### Vercel env vars (production)
+
+- `STRIPE_SECRET_KEY` - sk_test_... or sk_live_...
+- `STRIPE_WEBHOOK_SECRET` - whsec_...
+- `STRIPE_PRICE_ID` - price_...
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - pk_test_... or pk_live_...
+
+### User config additions
+
+`~/.schemagic/config.json` now includes: `email`, `license_status`, `last_check` (read/written by both Rust and Python).
+
 ## Environment variables
 
 - `SCHEMAGIC_STANDALONE=1` - prevents pcbnew import (set automatically by server)
 - `SCHEMAGIC_SIDECAR=1` - triggers server startup + port signaling to Tauri
 - `SCHEMAGIC_PORT=0` - pick random free port (or set to a fixed port number)
+- `STATIC_EXPORT=1` - build web/ as static export for Tauri (omit for Vercel server mode)
