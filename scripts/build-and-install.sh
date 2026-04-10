@@ -25,13 +25,23 @@ fi
 
 echo ""
 echo "==> Step 3/4: Building Tauri app..."
-cd tauri && cargo tauri build 2>&1
+cd tauri && cargo tauri build --bundles app 2>&1
 cd "$REPO_ROOT"
 
 echo ""
-echo "==> Step 4/4: Installing to /Applications..."
-# Find the built .app bundle
+echo "==> Step 3b: Creating DMG (bypassing Tauri's bundle_dmg.sh)..."
 APP_BUNDLE="tauri/target/release/bundle/macos/scheMAGIC.app"
+DMG_DIR="tauri/target/release/bundle/dmg"
+mkdir -p "$DMG_DIR"
+VERSION=$(grep '^version' tauri/Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+ARCH=$(uname -m | sed 's/arm64/aarch64/')
+DMG_NAME="scheMAGIC_${VERSION}_${ARCH}.dmg"
+rm -f "$DMG_DIR/$DMG_NAME"
+hdiutil create -srcfolder "$APP_BUNDLE" -volname "scheMAGIC" -fs HFS+ -format UDZO -o "$DMG_DIR/$DMG_NAME"
+echo "==> DMG created: $DMG_DIR/$DMG_NAME ($(du -h "$DMG_DIR/$DMG_NAME" | cut -f1))"
+
+echo ""
+echo "==> Step 4/4: Installing to /Applications..."
 if [ ! -d "$APP_BUNDLE" ]; then
     echo "ERROR: Built app not found at $APP_BUNDLE"
     exit 1
