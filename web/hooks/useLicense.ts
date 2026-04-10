@@ -356,6 +356,15 @@ export function useLicense(): LicenseContextValue {
     }
   }, [state.email, state.tier, validateWithServer]);
 
+  const clearEmail = useCallback(() => {
+    localStorage.removeItem("schemagic_email");
+    localStorage.removeItem("schemagic_token");
+    localStorage.removeItem(LOCAL_KEY);
+    tokenRef.current = null;
+    saveTauriConfig({ email: "", license_token: "" });
+    setState({ email: null, status: null, tier: null, loading: false, error: null });
+  }, []);
+
   return {
     ...state,
     setEmail,
@@ -363,5 +372,6 @@ export function useLicense(): LicenseContextValue {
     requestPortal,
     refreshLicense,
     acquireToken,
+    clearEmail,
   };
 }

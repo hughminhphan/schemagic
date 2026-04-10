@@ -19,6 +19,8 @@ export interface LicenseContextValue {
   requestPortal: () => Promise<void>;
   /** Re-validate the license (e.g. after payment in browser). */
   refreshLicense: () => Promise<void>;
+  /** Clear stored email and return to the email prompt. */
+  clearEmail: () => void;
   /**
    * Get a valid license token for sidecar requests.
    * For pro users: returns cached JWT (refreshes if near expiry).

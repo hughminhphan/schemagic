@@ -39,12 +39,20 @@ export default function LicenseGate({ children }: Props) {
           <p className="text-sm text-text-secondary mb-[24px]">
             {license.error}
           </p>
-          <button
-            onClick={license.refreshLicense}
-            className="text-xs text-accent hover:underline"
-          >
-            Retry
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={license.refreshLicense}
+              className="text-xs text-accent hover:underline"
+            >
+              Retry
+            </button>
+            <button
+              onClick={license.clearEmail}
+              className="text-xs text-text-secondary hover:underline"
+            >
+              Use different email
+            </button>
+          </div>
         </div>
       </div>
     );
