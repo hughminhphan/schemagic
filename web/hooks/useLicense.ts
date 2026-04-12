@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { LicenseStatus, ValidateResponse } from "@/lib/payments-types";
 import type { LicenseContextValue, LicenseTier } from "@/components/app/LicenseContext";
 
-const PAYMENTS_BASE = "https://schemagic.design/api/payments";
-const LICENSE_BASE = "https://schemagic.design/api/license";
+const PAYMENTS_BASE = "https://www.schemagic.design/api/payments";
+const LICENSE_BASE = "https://www.schemagic.design/api/license";
 const LOCAL_KEY = "schemagic_license";
 
 interface LicenseState {
