@@ -32,14 +32,14 @@ export default function Paywall({
           </p>
           <p className="text-sm text-text-secondary mb-[24px]">
             You have used {generationsUsed} of {generationsLimit} free
-            generations. Subscribe for $5 AUD/month to keep generating symbols
+            generations. Subscribe for $5 USD/month to keep generating symbols
             and footprints.
           </p>
           <button
             onClick={onSubscribe}
             className="bg-accent h-[48px] px-[24px] text-sm font-medium text-white rounded-lg hover:bg-accent-hover transition-colors w-full"
           >
-            Subscribe - $5 AUD/month
+            Subscribe - $5 USD/month
           </button>
           <div className="mt-[16px] flex items-center justify-between">
             <p className="text-xs text-text-secondary">

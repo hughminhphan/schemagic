@@ -71,7 +71,7 @@ export default function Pricing() {
               Pro
             </p>
             <p className="mt-[24px] text-4xl font-bold">
-              $5<span className="text-lg font-normal text-text-secondary"> AUD/month</span>
+              $5<span className="text-lg font-normal text-text-secondary"> USD/month</span>
             </p>
             <ul className="mt-[24px] space-y-[12px] text-sm text-text-secondary">
               <li>Unlimited generations</li>

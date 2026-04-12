@@ -1,6 +1,6 @@
 # scheMAGIC
 
-Type a part number, get a perfect KiCad symbol + footprint. $5 AUD/month.
+Type a part number, get a perfect KiCad symbol + footprint. $5 USD/month.
 
 ## Architecture
 
@@ -165,7 +165,7 @@ cd tauri && cargo tauri build
 
 ## Payments and licensing
 
-Stripe subscription ($5 AUD/month) with 3 free generations. RS256 JWT license tokens enforced at the sidecar layer.
+Stripe subscription ($5 USD/month) with 3 free generations. RS256 JWT license tokens enforced at the sidecar layer.
 
 ### How it works
 
