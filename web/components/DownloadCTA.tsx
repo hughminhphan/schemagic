@@ -1,4 +1,4 @@
-import InstallCommand from "./InstallCommand";
+import DownloadButtons from "./DownloadButtons";
 
 export default function DownloadCTA() {
   return (
@@ -12,19 +12,10 @@ export default function DownloadCTA() {
             Stop drawing symbols by hand.
           </p>
           <div className="mt-[48px]">
-            <InstallCommand />
-            <p className="mt-[24px] font-mono text-xs text-text-secondary">
-              or{" "}
-              <a
-                href="/api/download/mac"
-                className="underline hover:text-text-primary transition-colors"
-              >
-                download DMG directly
-              </a>
-            </p>
+            <DownloadButtons />
           </div>
           <p className="mt-[48px] font-mono text-xs text-text-secondary">
-            Requires KiCad 8.0+
+            KiCad 10 recommended.
           </p>
         </div>
       </div>

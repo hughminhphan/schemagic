@@ -1,4 +1,4 @@
-import InstallCommand from "./InstallCommand";
+import DownloadButtons from "./DownloadButtons";
 
 export default function Hero() {
   return (
@@ -15,16 +15,7 @@ export default function Hero() {
           production-ready component.
         </p>
         <div className="mt-[48px]">
-          <InstallCommand />
-          <p className="mt-[24px] font-mono text-xs text-text-secondary">
-            or{" "}
-            <a
-              href="/api/download/mac"
-              className="underline hover:text-text-primary transition-colors"
-            >
-              download DMG directly
-            </a>
-          </p>
+          <DownloadButtons />
         </div>
 
         {/* Pipeline visual - each box is exactly 6x2 grid cells (288x96px) */}
