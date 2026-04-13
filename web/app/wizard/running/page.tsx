@@ -47,7 +47,7 @@ function WizardRunning() {
 
     async function runPipeline() {
       try {
-        const token = await acquireToken();
+        const token = await acquireToken({ consume: true });
         if (!token) return;
 
         const res = await fetchWithLicense(`${apiBase()}/api/run`, token, {

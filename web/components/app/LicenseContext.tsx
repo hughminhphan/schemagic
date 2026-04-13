@@ -25,11 +25,14 @@ export interface LicenseContextValue {
   clearEmail: () => void;
   /**
    * Get a valid license token for sidecar requests.
-   * For pro users: returns cached JWT (refreshes if near expiry).
-   * For free users: calls the server to get a single-use 5-min token.
+   * Pass `{ consume: true }` when starting a new generation (`/api/run`) —
+   * this forces a fresh fetch and decrements the free-tier counter.
+   * Default (`consume: false`) returns the cached token if still valid,
+   * so wizard continuation calls (`/api/select-package`, `/api/finalize`)
+   * don't burn additional credits.
    * Returns null if the user has hit the free limit or is not licensed.
    */
-  acquireToken: () => Promise<string | null>;
+  acquireToken: (opts?: { consume?: boolean }) => Promise<string | null>;
 }
 
 export const LicenseContext = createContext<LicenseContextValue | null>(null);

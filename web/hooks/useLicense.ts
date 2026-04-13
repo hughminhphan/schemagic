@@ -65,6 +65,20 @@ interface IdentityPayload {
   exp?: number;
 }
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const padded = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = atob(padded + "=".repeat((4 - (padded.length % 4)) % 4));
+    const payload = JSON.parse(json) as { exp?: number };
+    if (!payload.exp) return false;
+    return payload.exp * 1000 <= Date.now() + 5000;
+  } catch {
+    return true;
+  }
+}
+
 function decodeIdentityToken(token: string): IdentityPayload | null {
   try {
     const parts = token.split(".");
@@ -320,8 +334,10 @@ export function useLicense(): LicenseContextValue {
     await openExternal(url);
   }, [state.email]);
 
-  const acquireToken = useCallback(async (): Promise<string | null> => {
-    if (state.tier === "pro" && tokenRef.current) {
+  const acquireToken = useCallback(async (opts?: { consume?: boolean }): Promise<string | null> => {
+    const consume = opts?.consume ?? false;
+
+    if (!consume && tokenRef.current && !isTokenExpired(tokenRef.current)) {
       return tokenRef.current;
     }
 
@@ -334,9 +350,7 @@ export function useLicense(): LicenseContextValue {
         "consume",
       );
       if (data.valid && data.token) {
-        if (data.tier === "pro") {
-          tokenRef.current = data.token;
-        }
+        tokenRef.current = data.token;
         if (data.generationsUsed != null) {
           setState((s) =>
             s.status
