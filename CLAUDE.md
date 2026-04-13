@@ -170,15 +170,15 @@ Stripe subscription ($5 USD/month) with 3 free generations. RS256 JWT license to
 ### How it works
 
 ```
-App launch -> LicenseGate reads email + cached JWT from Tauri config
+App launch -> LicenseGate reads email from Tauri config
   -> No email: show EmailPrompt
   -> Has email: POST /api/license/validate with email + machine_id
-     -> Pro (active subscription): get 7-day JWT, cache locally
+     -> Pro (active subscription): get 1-hour JWT held in memory only
      -> Free tier (under limit): get single-use 5-min JWT per generation
      -> Over limit: show Paywall -> Stripe Checkout in browser
      -> Device mismatch: show error
+     -> Network error: error screen with Retry button
   -> Sidecar validates X-License-Token header on /api/run, /api/select-package, /api/finalize
-  -> Offline: cached pro JWT valid up to 7 days
 ```
 
 ### Key files
@@ -194,7 +194,7 @@ App launch -> LicenseGate reads email + cached JWT from Tauri config
 | `web/app/api/payments/webhook/route.ts` | Handle Stripe webhook events (subscription lifecycle) |
 | `web/app/api/payments/check/route.ts` | Legacy check endpoint (kept for backwards compat) |
 | `web/app/activate/page.tsx` | Post-checkout landing page |
-| `web/hooks/useLicense.ts` | React hook: license state, token acquisition, offline fallback |
+| `web/hooks/useLicense.ts` | React hook: license state + in-memory token acquisition |
 | `web/components/app/LicenseGate.tsx` | Gate component wrapping the wizard |
 | `web/components/app/LicenseContext.tsx` | React context (acquireToken for sidecar calls) |
 | `web/lib/api-base.ts` | fetchWithLicense() injects X-License-Token header |
@@ -206,7 +206,7 @@ App launch -> LicenseGate reads email + cached JWT from Tauri config
 - JWT signed with RS256 private key (Vercel only), public key embedded in sidecar binary
 - Machine binding: UUID generated on first launch, stored in config, verified server-side
 - Free tier: online-only (single-use 5-min tokens), no fail-open
-- Pro tier: 7-day offline grace via JWT expiry
+- Pro tier: 1-hour JWT, always validated on launch. No offline access.
 
 ### Dual build modes
 
@@ -216,7 +216,7 @@ App launch -> LicenseGate reads email + cached JWT from Tauri config
 
 ### Stripe data model
 
-Stripe is the database. No external DB. Customer metadata stores: `free_generations` count, `machine_id` (device binding), `payment_failed` flag.
+Stripe is the database. No external DB. Customer metadata stores: `free_generations` count, `machine_id` (device binding).
 
 ### Vercel env vars (production)
 
@@ -229,7 +229,7 @@ Stripe is the database. No external DB. Customer metadata stores: `free_generati
 
 ### User config additions
 
-`~/.schemagic/config.json` includes: `email`, `license_status`, `last_check`, `license_token` (JWT), `machine_id` (UUID).
+`~/.schemagic/config.json` includes: `email`, `license_status`, `last_check`, `machine_id` (UUID).
 
 ## Environment variables
 

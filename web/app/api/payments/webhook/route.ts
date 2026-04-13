@@ -32,21 +32,6 @@ export async function POST(req: NextRequest) {
         });
         break;
       }
-      case "invoice.payment_failed": {
-        const invoice = event.data.object as { customer: string };
-        await stripe.customers.update(invoice.customer as string, {
-          metadata: { payment_failed: "true" },
-        });
-        break;
-      }
-      case "invoice.payment_succeeded": {
-        // Stripe metadata merges key-by-key; empty string deletes the key.
-        const invoice = event.data.object as { customer: string };
-        await stripe.customers.update(invoice.customer as string, {
-          metadata: { payment_failed: "" },
-        });
-        break;
-      }
       case "customer.subscription.updated":
         break;
     }

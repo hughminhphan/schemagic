@@ -6,7 +6,9 @@ import type { LicenseContextValue, LicenseTier } from "@/components/app/LicenseC
 
 const PAYMENTS_BASE = "https://www.schemagic.design/api/payments";
 const LICENSE_BASE = "https://www.schemagic.design/api/license";
+const AUTH_BASE = "https://www.schemagic.design/api/auth";
 const LOCAL_KEY = "schemagic_license";
+const IDENTITY_KEY = "schemagic_identity_token";
 
 interface LicenseState {
   email: string | null;
@@ -46,25 +48,6 @@ async function getTauriMachineId(): Promise<string | null> {
   }
 }
 
-async function storeTauriLicenseToken(token: string): Promise<void> {
-  try {
-    const { invoke } = await import("@tauri-apps/api/core");
-    await invoke("store_license_token", { token });
-  } catch {
-    // Not in Tauri
-  }
-}
-
-async function getTauriLicenseToken(): Promise<string | null> {
-  try {
-    const { invoke } = await import("@tauri-apps/api/core");
-    const token = await invoke<string>("get_license_token");
-    return token || null;
-  } catch {
-    return null;
-  }
-}
-
 async function openExternal(url: string): Promise<void> {
   try {
     const { open } = await import("@tauri-apps/plugin-shell");
@@ -74,27 +57,55 @@ async function openExternal(url: string): Promise<void> {
   }
 }
 
-// --- JWT helpers (decode without verification, for expiry check only) ---
+// --- Identity token helpers ---
 
-function decodeJwtPayload(token: string): Record<string, unknown> | null {
+interface IdentityPayload {
+  email?: string;
+  typ?: string;
+  exp?: number;
+}
+
+function decodeIdentityToken(token: string): IdentityPayload | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
-    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    const padded = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = atob(padded + "=".repeat((4 - (padded.length % 4)) % 4));
+    const payload = JSON.parse(json) as IdentityPayload;
+    if (payload.typ && payload.typ !== "identity") return null;
+    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
     return payload;
   } catch {
     return null;
   }
 }
 
-function isTokenExpiringSoon(token: string, bufferSeconds = 86400): boolean {
-  const payload = decodeJwtPayload(token);
-  if (!payload || typeof payload.exp !== "number") return true;
-  return Date.now() / 1000 > payload.exp - bufferSeconds;
+async function loadIdentityToken(): Promise<string | null> {
+  const tauri = await readTauriConfig();
+  const fromTauri = typeof tauri?.identity_token === "string" ? (tauri.identity_token as string) : "";
+  if (fromTauri) return fromTauri;
+  if (typeof localStorage !== "undefined") {
+    return localStorage.getItem(IDENTITY_KEY);
+  }
+  return null;
 }
 
-function isTokenExpired(token: string): boolean {
-  return isTokenExpiringSoon(token, 0);
+async function storeIdentityToken(token: string): Promise<void> {
+  await saveTauriConfig({ identity_token: token });
+  try {
+    localStorage.setItem(IDENTITY_KEY, token);
+  } catch {
+    // ignore
+  }
+}
+
+async function clearIdentityToken(): Promise<void> {
+  await saveTauriConfig({ identity_token: "", email: "" });
+  try {
+    localStorage.removeItem(IDENTITY_KEY);
+  } catch {
+    // ignore
+  }
 }
 
 // --- Machine ID (browser fallback) ---
@@ -138,44 +149,14 @@ export function useLicense(): LicenseContextValue {
     async (email: string) => {
       setState((s) => ({ ...s, loading: true, email }));
       try {
-        // Get machine ID
         let machineId = await getTauriMachineId();
         if (!machineId) machineId = getBrowserMachineId();
         machineIdRef.current = machineId;
 
-        // Check for cached token first
-        let cachedToken = await getTauriLicenseToken();
-        if (!cachedToken) cachedToken = localStorage.getItem("schemagic_token");
-
-        // If we have a valid, non-expiring-soon pro token, use it without network call
-        if (cachedToken && !isTokenExpiringSoon(cachedToken)) {
-          const payload = decodeJwtPayload(cachedToken);
-          if (payload?.tier === "pro") {
-            tokenRef.current = cachedToken;
-            setState({
-              email,
-              status: {
-                licensed: true,
-                generationsUsed: 0,
-                generationsLimit: 3,
-                subscriptionStatus: "active",
-              },
-              tier: "pro",
-              loading: false,
-              error: null,
-            });
-            return;
-          }
-        }
-
-        // Call server to validate / get fresh token
         const data = await validateWithServer(email, machineId);
 
         if (data.valid && data.token) {
           tokenRef.current = data.token;
-          // Persist token
-          await storeTauriLicenseToken(data.token);
-          localStorage.setItem("schemagic_token", data.token);
           localStorage.setItem(
             LOCAL_KEY,
             JSON.stringify({ email, tier: data.tier, ts: Date.now() })
@@ -194,7 +175,6 @@ export function useLicense(): LicenseContextValue {
             error: null,
           });
         } else {
-          // Not valid - show paywall or error
           tokenRef.current = null;
           setState({
             email,
@@ -213,34 +193,9 @@ export function useLicense(): LicenseContextValue {
           });
         }
 
-        // Persist email
-        localStorage.setItem("schemagic_email", email);
         await saveTauriConfig({ email });
       } catch (err) {
-        // Offline fallback: use cached token if still valid
-        const cachedToken =
-          (await getTauriLicenseToken()) ??
-          localStorage.getItem("schemagic_token");
-        if (cachedToken && !isTokenExpired(cachedToken)) {
-          const payload = decodeJwtPayload(cachedToken);
-          tokenRef.current = cachedToken;
-          setState({
-            email,
-            status: {
-              licensed: payload?.tier === "pro",
-              generationsUsed: 0,
-              generationsLimit: 3,
-              subscriptionStatus:
-                payload?.tier === "pro" ? "active" : "none",
-            },
-            tier: (payload?.tier as LicenseTier) ?? null,
-            loading: false,
-            error: null,
-          });
-          return;
-        }
-
-        // No cached token and offline - error state
+        tokenRef.current = null;
         setState((s) => ({
           ...s,
           loading: false,
@@ -254,13 +209,35 @@ export function useLicense(): LicenseContextValue {
     [validateWithServer]
   );
 
-  // On mount: read email from Tauri config or localStorage
+  const applyIdentityToken = useCallback(
+    async (token: string): Promise<boolean> => {
+      const payload = decodeIdentityToken(token);
+      if (!payload?.email) return false;
+      await storeIdentityToken(token);
+      await checkLicense(payload.email);
+      return true;
+    },
+    [checkLicense]
+  );
+
+  // On mount: prefer identity_token; fall back to stored email (dev/transition only)
   useEffect(() => {
     (async () => {
+      const storedToken = await loadIdentityToken();
+      if (storedToken) {
+        const payload = decodeIdentityToken(storedToken);
+        if (payload?.email) {
+          await checkLicense(payload.email);
+          return;
+        }
+        // Expired or malformed — clear it
+        await clearIdentityToken();
+      }
+
       const tauriConfig = await readTauriConfig();
       const email =
         (tauriConfig?.email as string) ||
-        localStorage.getItem("schemagic_email") ||
+        (typeof localStorage !== "undefined" ? localStorage.getItem("schemagic_email") : null) ||
         null;
 
       if (!email) {
@@ -271,8 +248,43 @@ export function useLicense(): LicenseContextValue {
     })();
   }, [checkLicense]);
 
+  // Listen for deep-link auth events from the Rust side
+  useEffect(() => {
+    let unlisten: (() => void) | null = null;
+    (async () => {
+      try {
+        const { listen } = await import("@tauri-apps/api/event");
+        unlisten = await listen<string>("deep-link-auth", async (event) => {
+          const token = event.payload;
+          if (typeof token === "string" && token.length > 0) {
+            await applyIdentityToken(token);
+          }
+        });
+      } catch {
+        // Not in Tauri — deep links only work in the desktop shell
+      }
+    })();
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, [applyIdentityToken]);
+
+  const requestMagicLink = useCallback(async (email: string) => {
+    const res = await fetch(`${AUTH_BASE}/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(data.error ?? "Failed to send magic link.");
+    }
+  }, []);
+
   const setEmail = useCallback(
     async (email: string) => {
+      // Dev/legacy path: accept email without magic-link verification.
+      // In production Tauri builds the UI should call requestMagicLink() instead.
       localStorage.setItem("schemagic_email", email);
       await saveTauriConfig({ email });
       await checkLicense(email);
@@ -306,18 +318,15 @@ export function useLicense(): LicenseContextValue {
   }, [state.email]);
 
   const acquireToken = useCallback(async (): Promise<string | null> => {
-    // Pro users: return cached token (already validated on mount/refresh)
-    if (state.tier === "pro" && tokenRef.current && !isTokenExpired(tokenRef.current)) {
+    if (state.tier === "pro" && tokenRef.current) {
       return tokenRef.current;
     }
 
-    // Free tier: get a fresh single-use token from the server
     if (!state.email || !machineIdRef.current) return null;
 
     try {
       const data = await validateWithServer(state.email, machineIdRef.current);
       if (data.valid && data.token) {
-        // Update generation count in state
         if (data.generationsUsed != null) {
           setState((s) =>
             s.status
@@ -335,7 +344,6 @@ export function useLicense(): LicenseContextValue {
         return data.token;
       }
 
-      // Hit the limit
       if (data.reason === "limit_reached") {
         setState((s) => ({
           ...s,
@@ -351,23 +359,22 @@ export function useLicense(): LicenseContextValue {
 
       return null;
     } catch {
-      // Network error - for free tier, we cannot fail open
       return null;
     }
   }, [state.email, state.tier, validateWithServer]);
 
   const clearEmail = useCallback(() => {
     localStorage.removeItem("schemagic_email");
-    localStorage.removeItem("schemagic_token");
     localStorage.removeItem(LOCAL_KEY);
     tokenRef.current = null;
-    saveTauriConfig({ email: "", license_token: "" });
+    void clearIdentityToken();
     setState({ email: null, status: null, tier: null, loading: false, error: null });
   }, []);
 
   return {
     ...state,
     setEmail,
+    requestMagicLink,
     requestCheckout,
     requestPortal,
     refreshLicense,

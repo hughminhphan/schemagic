@@ -11,8 +11,10 @@ export interface LicenseContextValue {
   tier: LicenseTier;
   loading: boolean;
   error: string | null;
-  /** Set the user's email and trigger initial license check. */
+  /** Set the user's email and trigger initial license check. Dev/legacy path. */
   setEmail: (email: string) => Promise<void>;
+  /** Send a magic-link sign-in email. Resolves when the request has been queued. */
+  requestMagicLink: (email: string) => Promise<void>;
   /** Open Stripe Checkout in the system browser. */
   requestCheckout: (email: string) => Promise<void>;
   /** Open Stripe Customer Portal in the system browser. */

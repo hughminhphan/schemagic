@@ -28,7 +28,7 @@ export default function LicenseGate({ children }: Props) {
     return <EmailPrompt onSubmit={license.setEmail} />;
   }
 
-  // Error state (e.g. device mismatch, offline with no cached token)
+  // Error state (e.g. device mismatch, network error)
   if (license.error && !license.tier) {
     return (
       <div className="grid-bg min-h-screen flex items-center justify-center">

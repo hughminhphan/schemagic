@@ -53,8 +53,7 @@ export function getFreeGenerations(customer: Stripe.Customer): number {
 }
 
 /** Pro tier statuses that grant access.
- * past_due keeps card-failed users licensed during the Stripe retry grace window
- * (the validate endpoint separately shortens their JWT via payment_failed flag). */
+ * past_due keeps card-failed users licensed during the Stripe retry grace window. */
 const PRO_STATUSES: readonly Stripe.Subscription.Status[] = [
   "active",
   "trialing",

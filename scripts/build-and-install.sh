@@ -12,16 +12,26 @@ echo "==> Step 1/4: Building Python sidecar..."
 
 echo ""
 echo "==> Step 2/4: Building frontend (static export for Tauri)..."
-# Temporarily move API routes out - they only work on Vercel (server mode),
+# Temporarily move server-only routes out - they only work on Vercel (server mode),
 # not in static export mode used by Tauri.
-if [ -d "web/app/api" ]; then
-    mv web/app/api web/app/_api_server_only
-fi
+SERVER_ONLY_PATHS=(
+    "web/app/api:web/app/_api_server_only"
+    "web/app/auth/verify:web/app/_auth_verify_server_only"
+)
+restore_server_only() {
+    for pair in "${SERVER_ONLY_PATHS[@]}"; do
+        src="${pair%%:*}"; dst="${pair##*:}"
+        if [ -d "$dst" ]; then mv "$dst" "$src"; fi
+    done
+}
+trap restore_server_only EXIT
+for pair in "${SERVER_ONLY_PATHS[@]}"; do
+    src="${pair%%:*}"; dst="${pair##*:}"
+    if [ -d "$src" ]; then mv "$src" "$dst"; fi
+done
 cd web && STATIC_EXPORT=1 npm run build && cd "$REPO_ROOT"
-# Restore API routes
-if [ -d "web/app/_api_server_only" ]; then
-    mv web/app/_api_server_only web/app/api
-fi
+restore_server_only
+trap - EXIT
 
 echo ""
 echo "==> Step 3/4: Building Tauri app..."

@@ -52,12 +52,9 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const paymentFailed = customer.metadata?.payment_failed === "true";
-      const expiresInSeconds = paymentFailed ? 3 * 86400 : 7 * 86400;
-
       const token = signLicenseToken(
         { sub: customer.id, email, machine_id, tier: "pro" },
-        expiresInSeconds
+        3600
       );
 
       return NextResponse.json({ valid: true, token, tier: "pro" });

@@ -10,9 +10,10 @@ use std::sync::{atomic::{AtomicU16, Ordering}, Arc, Mutex};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager, RunEvent,
+    Emitter, Manager, RunEvent,
 };
 use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
 
 /// User config stored at ~/.schemagic/config.json
@@ -30,12 +31,12 @@ struct AppConfig {
     gemini_model: String,
     #[serde(default)]
     email: String,
+    #[serde(default)]
+    identity_token: String,
     #[serde(default = "default_license_status")]
     license_status: String,
     #[serde(default)]
     last_check: i64,
-    #[serde(default)]
-    license_token: String,
     #[serde(default)]
     machine_id: String,
 }
@@ -62,9 +63,9 @@ impl Default for AppConfig {
             gemini_api_key: String::new(),
             gemini_model: default_gemini_model(),
             email: String::new(),
+            identity_token: String::new(),
             license_status: default_license_status(),
             last_check: 0,
-            license_token: String::new(),
             machine_id: String::new(),
         }
     }
@@ -150,24 +151,6 @@ fn get_machine_id() -> Result<String, String> {
     get_or_create_machine_id()
 }
 
-/// Tauri command: store a license token
-#[tauri::command]
-fn store_license_token(token: String) -> Result<(), String> {
-    let mut config = load_config();
-    config.license_token = token;
-    config.last_check = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs() as i64;
-    save_config(&config)
-}
-
-/// Tauri command: get the stored license token
-#[tauri::command]
-fn get_license_token() -> String {
-    load_config().license_token
-}
-
 fn build_shortcut(config: &AppConfig) -> Option<Shortcut> {
     let mut modifiers = Modifiers::empty();
     for m in &config.hotkey_modifiers {
@@ -225,6 +208,7 @@ fn main() {
     let port_for_pageload = shared_port.clone();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_deep_link::init())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(
@@ -240,8 +224,6 @@ fn main() {
             mark_setup_done,
             get_api_port,
             get_machine_id,
-            store_license_token,
-            get_license_token,
         ])
         .on_page_load(move |webview, _payload| {
             let p = port_for_pageload.load(Ordering::Relaxed);
@@ -324,6 +306,40 @@ fn main() {
                     _ => {}
                 })
                 .build(app)?;
+
+            // Register deep-link scheme at runtime (needed on Linux; no-op on macOS where
+            // Info.plist URL types are declared via the plugin's bundler integration).
+            let _ = app.deep_link().register_all();
+
+            // Handle schemagic://auth?token=<jwt> deep links: persist identity token,
+            // emit an event so the webview can refresh license state, and foreground the window.
+            let handle_for_deeplink = handle.clone();
+            app.deep_link().on_open_url(move |event| {
+                for url in event.urls() {
+                    if url.scheme() != "schemagic" {
+                        continue;
+                    }
+                    if url.host_str() != Some("auth") && url.path() != "/auth" {
+                        continue;
+                    }
+                    let token = url
+                        .query_pairs()
+                        .find(|(k, _)| k == "token")
+                        .map(|(_, v)| v.into_owned())
+                        .unwrap_or_default();
+                    if token.is_empty() {
+                        continue;
+                    }
+                    let mut config = load_config();
+                    config.identity_token = token.clone();
+                    if let Err(e) = save_config(&config) {
+                        eprintln!("Failed to persist identity_token: {}", e);
+                        continue;
+                    }
+                    let _ = handle_for_deeplink.emit("deep-link-auth", &token);
+                    show_main_window(&handle_for_deeplink);
+                }
+            });
 
             // Show the main window after setup is complete
             if let Some(window) = app.get_webview_window("main") {

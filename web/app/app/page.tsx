@@ -1,76 +1,40 @@
 "use client";
 
-import Nav from "@/components/Nav";
-import LicenseGate from "@/components/app/LicenseGate";
-import { WizardProvider, useWizard } from "@/components/app/WizardProvider";
-import PartInput from "@/components/app/PartInput";
-import StatusStream from "@/components/app/StatusStream";
-import PinReviewVisual from "@/components/app/PinReviewVisual";
-import DownloadPanel from "@/components/app/DownloadPanel";
-import PackageSelectPanel from "@/components/app/PackageSelectPanel";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import AppShell from "@/components/app/AppShell";
+import { useLicense } from "@/hooks/useLicense";
+import { TerminalLine } from "@/components/ui";
 
-function WizardRouter() {
-  const state = useWizard();
+export default function BootPage() {
+  const router = useRouter();
+  const license = useLicense();
+
+  useEffect(() => {
+    if (license.loading) return;
+    if (!license.email) {
+      router.replace("/auth/email");
+      return;
+    }
+    const hitLimit =
+      !!license.status &&
+      !license.status.licensed &&
+      !license.tier &&
+      license.status.generationsUsed >= license.status.generationsLimit;
+    if (hitLimit) {
+      router.replace("/auth/paywall");
+      return;
+    }
+    router.replace("/wizard/idle");
+  }, [license.loading, license.email, license.status, license.tier, router]);
 
   return (
-    <>
-      <div className="mb-[48px]">
-        <h1 className="text-3xl font-bold tracking-tight">
-          sche<span className="text-accent">MAGIC</span>
-        </h1>
-        <p className="mt-[12px] text-sm text-text-secondary">
-          Upload a datasheet to generate KiCad symbols and footprints.
-        </p>
+    <AppShell header="wordmarkOnly">
+      <div className="flex-1 flex items-center justify-center">
+        <TerminalLine>
+          <span className="animate-pulse">booting...</span>
+        </TerminalLine>
       </div>
-
-      <PartInput />
-      <StatusStream />
-
-      {state.step === "PACKAGE_SELECT" && <PackageSelectPanel />}
-
-      {(state.step === "PIN_REVIEW" || state.step === "GENERATING") && (
-        <PinReviewVisual />
-      )}
-
-      {state.step === "GENERATING" && (
-        <div className="mt-[24px] border border-border bg-surface-raised p-[24px]">
-          <p className="font-mono text-xs text-text-secondary animate-pulse">
-            Generating files...
-          </p>
-        </div>
-      )}
-
-      {state.step === "DONE" && <DownloadPanel />}
-
-      {state.step === "ERROR" && (
-        <div className="mt-[48px] border border-accent/30 bg-surface-raised p-[24px]">
-          <p className="font-mono text-xs text-accent uppercase tracking-wider mb-[12px]">
-            Error
-          </p>
-          <p className="text-sm text-text-secondary">{state.error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-[24px] border border-border h-[48px] px-[24px] text-sm text-text-secondary hover:text-text-primary hover:border-accent transition-colors"
-          >
-            Try again
-          </button>
-        </div>
-      )}
-    </>
-  );
-}
-
-export default function AppPage() {
-  return (
-    <LicenseGate>
-      <WizardProvider>
-        <div className="grid-bg min-h-screen">
-          <Nav />
-          <main className="mx-auto max-w-6xl px-6 py-[96px]">
-            <WizardRouter />
-          </main>
-        </div>
-      </WizardProvider>
-    </LicenseGate>
+    </AppShell>
   );
 }

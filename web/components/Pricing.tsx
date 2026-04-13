@@ -75,7 +75,6 @@ export default function Pricing() {
             </p>
             <ul className="mt-[24px] space-y-[12px] text-sm text-text-secondary">
               <li>Unlimited generations</li>
-              <li>7-day offline access</li>
               <li>Full pin review and editing</li>
               <li>Any manufacturer, any part</li>
             </ul>

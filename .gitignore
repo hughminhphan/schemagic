@@ -45,3 +45,4 @@ tauri/binaries/schemagic-server-*
 tauri/target/
 tauri/gen/
 .env*.local
+.venv-tests/

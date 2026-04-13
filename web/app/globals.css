@@ -27,13 +27,30 @@
 @theme inline {
   --color-surface: #0A0A0A;
   --color-surface-raised: #111111;
-  --color-border: #1a1a1a;
-  --color-text-primary: #ffffff;
+  --color-border: #1A1A1A;
+  --color-text-primary: #FFFFFF;
   --color-text-secondary: #888888;
   --color-accent: #FF2D78;
   --color-accent-hover: #FF4D91;
+  --color-success: #4ADE80;
+  --color-viewer-symbol-bg: #0A0A0A;
+  --color-viewer-footprint-bg: #001023;
+  --color-viewer-pin-line: #CC3333;
+  --color-viewer-pin-name: #00CCCC;
+  --color-viewer-pin-number: #CC4444;
+
   --font-sans: "Space Grotesk", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-h1: 30px;
+  --text-h1--line-height: 36px;
+  --text-h1--font-weight: 700;
+  --text-body: 14px;
+  --text-body--line-height: 20px;
+  --text-mono-label: 12px;
+  --text-mono-label--line-height: 16px;
+  --text-mono-xs: 10px;
+  --text-mono-xs--line-height: 14px;
 }
 
 * {
