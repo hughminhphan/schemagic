@@ -13,7 +13,7 @@ import { normalizeEmail } from "@/lib/email";
 import { stripeErrorResponse } from "@/lib/api-helpers";
 
 export async function POST(req: NextRequest) {
-  let body: { email?: unknown; machine_id?: unknown };
+  let body: { email?: unknown; machine_id?: unknown; mode?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
   if (!machine_id) {
     return NextResponse.json({ error: "machine_id required" }, { status: 400 });
   }
+  const mode = body.mode === "status" ? "status" : "consume";
 
   try {
     const customer = await getOrCreateCustomer(email);
@@ -52,6 +53,10 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      if (mode === "status") {
+        return NextResponse.json({ valid: true, tier: "pro" });
+      }
+
       const token = signLicenseToken(
         { sub: customer.id, email, machine_id, tier: "pro" },
         3600
@@ -62,6 +67,25 @@ export async function POST(req: NextRequest) {
 
     // --- Free tier ---
     const used = getFreeGenerations(customer);
+
+    if (mode === "status") {
+      if (used >= FREE_GENERATION_LIMIT) {
+        return NextResponse.json({
+          valid: false,
+          reason: "limit_reached",
+          generationsUsed: used,
+          generationsLimit: FREE_GENERATION_LIMIT,
+        });
+      }
+      return NextResponse.json({
+        valid: true,
+        tier: "free",
+        generationsUsed: used,
+        generationsLimit: FREE_GENERATION_LIMIT,
+        generationsRemaining: FREE_GENERATION_LIMIT - used,
+      });
+    }
+
     if (used >= FREE_GENERATION_LIMIT) {
       return NextResponse.json({
         valid: false,

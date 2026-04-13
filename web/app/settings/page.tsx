@@ -85,9 +85,9 @@ function Settings() {
 
             <TabsPanel value="preferences">
               <Card header={<span>Preferences</span>}>
-                <CardRow label="KiCad project path" value="(TODO)" />
-                <CardRow label="Launch on login" value="(TODO)" />
-                <CardRow label="Global hotkey" value="(TODO)" />
+                <CardRow label="KiCad project path" value="Coming soon" />
+                <CardRow label="Launch on login" value="Coming soon" />
+                <CardRow label="Global hotkey" value="Coming soon" />
               </Card>
             </TabsPanel>
           </Tabs>

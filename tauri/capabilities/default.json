@@ -21,6 +21,10 @@
       ]
     },
     "shell:allow-spawn",
+    {
+      "identifier": "shell:allow-open",
+      "allow": [{ "url": "https://.*" }, { "url": "http://.*" }]
+    },
     "global-shortcut:allow-register",
     "global-shortcut:allow-unregister",
     "global-shortcut:allow-is-registered",

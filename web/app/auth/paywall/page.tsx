@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/app/AppShell";
 import { useLicense } from "@/hooks/useLicense";
-import { Badge, Button, Card, CardRow, TerminalLine } from "@/components/ui";
+import { Button } from "@/components/ui";
 
 export default function AuthPaywallPage() {
   const router = useRouter();
@@ -26,39 +26,31 @@ export default function AuthPaywallPage() {
     await license.requestCheckout(license.email);
   };
 
-  const used = license.status?.generationsUsed ?? 0;
+  const used = license.status?.generationsUsed ?? 3;
   const limit = license.status?.generationsLimit ?? 3;
 
   return (
     <AppShell header="withBack" backHref="/wizard/idle">
       <div className="flex-1 flex items-center justify-center px-12 py-24">
-        <div className="w-full max-w-2xl flex flex-col gap-12">
-          <div className="flex flex-col gap-6">
-            <TerminalLine>auth/paywall</TerminalLine>
-            <h1 className="font-sans text-h1 text-text-primary">
-              Free tier reached
-            </h1>
-            <p className="font-sans text-body text-text-secondary">
-              You&apos;ve used {used} of {limit} free generations. Upgrade for
-              unlimited symbols.
+        <div className="w-full max-w-2xl">
+          <div className="flex flex-col gap-8 bg-surface-raised border-2 border-border p-12">
+            <p className="font-sans text-mono-label uppercase tracking-wide text-accent">
+              Free tier used
             </p>
-          </div>
-
-          <Card header={<span>Pro &middot; $5 USD / month</span>}>
-            <CardRow label="Unlimited generations" value={<Badge variant="pro">Pro</Badge>} />
-            <CardRow label="All manufacturers" value="Included" />
-            <CardRow label="Priority datasheet fetch" value="Included" />
-            <CardRow label="Cancel anytime" value="Stripe" />
-          </Card>
-
-          <div className="flex items-center gap-6">
-            <Button onClick={handleSubscribe}>Upgrade</Button>
-            <Button
-              variant="secondary"
+            <p className="font-sans text-body text-text-secondary">
+              You have used {used} of {limit} free generations. Subscribe for
+              $5 USD/month to keep generating symbols and footprints.
+            </p>
+            <div>
+              <Button onClick={handleSubscribe}>Subscribe — $5 USD/month</Button>
+            </div>
+            <button
+              type="button"
               onClick={() => license.refreshLicense()}
+              className="self-start font-sans text-body text-accent hover:text-accent-hover"
             >
-              I&apos;ve already paid
-            </Button>
+              Already subscribed? Refresh
+            </button>
           </div>
         </div>
       </div>

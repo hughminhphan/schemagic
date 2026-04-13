@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 type Layout = "default" | "withBack" | "wordmarkOnly";
@@ -23,6 +23,8 @@ function Wordmark() {
 
 export default function Header({ layout = "default", backHref, onBack, right }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const onSettings = pathname?.startsWith("/settings");
 
   const handleBack = () => {
     if (onBack) return onBack();
@@ -44,10 +46,9 @@ export default function Header({ layout = "default", backHref, onBack, right }: 
 
       <Wordmark />
 
-      {layout === "default" && right ? (
+      {right ? (
         <div className="absolute right-12">{right}</div>
-      ) : null}
-      {layout === "default" && !right ? (
+      ) : !onSettings ? (
         <button
           type="button"
           onClick={() => router.push("/settings")}

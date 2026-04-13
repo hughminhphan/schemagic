@@ -134,11 +134,15 @@ export function useLicense(): LicenseContextValue {
   const machineIdRef = useRef<string | null>(null);
 
   const validateWithServer = useCallback(
-    async (email: string, machineId: string): Promise<ValidateResponse> => {
+    async (
+      email: string,
+      machineId: string,
+      mode: "status" | "consume" = "consume",
+    ): Promise<ValidateResponse> => {
       const res = await fetch(`${LICENSE_BASE}/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, machine_id: machineId }),
+        body: JSON.stringify({ email, machine_id: machineId, mode }),
       });
       return res.json();
     },
@@ -153,10 +157,9 @@ export function useLicense(): LicenseContextValue {
         if (!machineId) machineId = getBrowserMachineId();
         machineIdRef.current = machineId;
 
-        const data = await validateWithServer(email, machineId);
+        const data = await validateWithServer(email, machineId, "status");
 
-        if (data.valid && data.token) {
-          tokenRef.current = data.token;
+        if (data.valid) {
           localStorage.setItem(
             LOCAL_KEY,
             JSON.stringify({ email, tier: data.tier, ts: Date.now() })
@@ -325,8 +328,15 @@ export function useLicense(): LicenseContextValue {
     if (!state.email || !machineIdRef.current) return null;
 
     try {
-      const data = await validateWithServer(state.email, machineIdRef.current);
+      const data = await validateWithServer(
+        state.email,
+        machineIdRef.current,
+        "consume",
+      );
       if (data.valid && data.token) {
+        if (data.tier === "pro") {
+          tokenRef.current = data.token;
+        }
         if (data.generationsUsed != null) {
           setState((s) =>
             s.status
