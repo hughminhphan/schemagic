@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
   try {
     const customer = await getOrCreateCustomer(email);
 
-    // --- Pro tier: active / trialing / past_due subscription ---
     if (await hasActiveSubscription(customer.id)) {
       const storedMachineId = customer.metadata?.machine_id;
 

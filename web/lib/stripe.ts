@@ -1,9 +1,18 @@
 import Stripe from "stripe";
+import { createHash } from "crypto";
+
+function emailKey(email: string): string {
+  return createHash("sha256").update(email).digest("hex").slice(0, 32);
+}
 
 let _stripe: Stripe | null = null;
 export function getStripe(): Stripe {
   if (!_stripe) {
-    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+    // Force Node's http module instead of fetch: Next.js app router caches
+    // fetch() responses by default, which pins stale customers.list results.
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      httpClient: Stripe.createNodeHttpClient(),
+    });
   }
   return _stripe;
 }
@@ -13,15 +22,29 @@ export const PRICE_ID = process.env.STRIPE_PRICE_ID!;
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://schemagic.design";
 
 /** Find or create a Stripe customer by normalized email.
- * Caller must normalize email via normalizeEmail() before passing in.
- * Idempotency key on create() dedupes parallel signups within Stripe's 24h window. */
+ *
+ * customers.list has seconds-to-minutes indexing delay, so a fresh signup
+ * often returns empty even after the customer was created moments earlier.
+ * When that happens we fall through to customers.create with an email-keyed
+ * idempotency key — same email within Stripe's 24h window returns the
+ * cached customer, so parallel signups on the same email dedup (Bug 5).
+ *
+ * If the cached customer was deleted externally (happens in the test
+ * harness; rare in prod), retrieve will 404 and we retry without the key. */
 export async function getOrCreateCustomer(email: string): Promise<Stripe.Customer> {
-  const existing = await getStripe().customers.list({ email, limit: 1 });
+  const stripe = getStripe();
+  const existing = await stripe.customers.list({ email, limit: 1 });
   if (existing.data.length > 0) return existing.data[0];
-  return getStripe().customers.create(
+  const idempotencyKey = `create-customer:${emailKey(email)}`;
+  const created = await stripe.customers.create(
     { email, metadata: { free_generations: "0" } },
-    { idempotencyKey: `create-customer:${email}` }
+    { idempotencyKey }
   );
+  const verified = await stripe.customers.retrieve(created.id).catch(() => null);
+  if (!verified || (verified as Stripe.DeletedCustomer).deleted) {
+    return stripe.customers.create({ email, metadata: { free_generations: "0" } });
+  }
+  return created;
 }
 
 /** Read free generation count from customer metadata. */
@@ -59,18 +82,18 @@ export async function getSubscriptionStatus(
 }
 
 /** Increment free generation count.
- * Idempotency key includes a 2s time bucket to coalesce duplicate rapid-fire
- * requests (e.g. double-click retries) into a single Stripe write. True parallel
- * race hardening would need a shared atomic counter (Redis); at $5/mo with a
- * 3-gen cap, the worst-case over-grant is acceptable. */
+ * Idempotency key includes the target value so two requests that both read
+ * the same "current" and try to set the same "next" coalesce on Stripe's
+ * side (prevents retry double-writes). True parallel race hardening would
+ * need a shared atomic counter (Redis); at $5/mo with a 3-gen cap, the
+ * worst-case over-grant is acceptable. */
 export async function incrementFreeGenerations(customer: Stripe.Customer): Promise<number> {
   const current = getFreeGenerations(customer);
   const next = current + 1;
-  const bucket = Math.floor(Date.now() / 2000);
   await getStripe().customers.update(
     customer.id,
     { metadata: { free_generations: String(next) } },
-    { idempotencyKey: `inc-free:${customer.id}:${bucket}` }
+    { idempotencyKey: `inc-free:${customer.id}:${next}` }
   );
   return next;
 }
