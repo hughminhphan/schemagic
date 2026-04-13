@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Python sidecar
         run: |
-          pip install pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi
+          pip install pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi "PyJWT[crypto]"
           pyinstaller tauri/sidecar/schemagic-server.spec \
             --distpath tauri/sidecar \
             --workpath /tmp/schemagic-pyinstaller \
@@ -89,7 +89,7 @@ jobs:
 
       - name: Build Python sidecar
         run: |
-          pip install pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi
+          pip install pyinstaller fastapi uvicorn pdfplumber anyio python-multipart pydantic certifi "PyJWT[crypto]"
           pyinstaller tauri/sidecar/schemagic-server.spec --distpath tauri/sidecar --workpath C:\Temp\schemagic-pyinstaller --noconfirm
           Rename-Item "tauri\sidecar\schemagic-server.exe" "schemagic-server-x86_64-pc-windows-msvc.exe"
           New-Item -ItemType Directory -Force -Path "tauri\binaries"
