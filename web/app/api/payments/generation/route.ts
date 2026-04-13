@@ -6,30 +6,42 @@ import {
   hasActiveSubscription,
   incrementFreeGenerations,
 } from "@/lib/stripe";
+import { normalizeEmail } from "@/lib/email";
+import { stripeErrorResponse } from "@/lib/api-helpers";
 
 export async function POST(req: NextRequest) {
-  const { email } = await req.json();
+  let body: { email?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const email = normalizeEmail(body.email);
   if (!email) {
-    return NextResponse.json({ error: "email required" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
-  const customer = await getOrCreateCustomer(email);
+  try {
+    const customer = await getOrCreateCustomer(email);
 
-  // Licensed users always allowed, don't increment free count
-  if (await hasActiveSubscription(customer.id)) {
-    return NextResponse.json({ allowed: true, licensed: true });
+    if (await hasActiveSubscription(customer.id)) {
+      return NextResponse.json({ allowed: true, licensed: true });
+    }
+
+    const used = getFreeGenerations(customer);
+    if (used >= FREE_GENERATION_LIMIT) {
+      return NextResponse.json({ allowed: false, licensed: false, generationsUsed: used });
+    }
+
+    const next = await incrementFreeGenerations(customer);
+    return NextResponse.json({
+      allowed: true,
+      licensed: false,
+      generationsUsed: next,
+      generationsRemaining: FREE_GENERATION_LIMIT - next,
+    });
+  } catch (err) {
+    return stripeErrorResponse(err);
   }
-
-  const used = getFreeGenerations(customer);
-  if (used >= FREE_GENERATION_LIMIT) {
-    return NextResponse.json({ allowed: false, licensed: false, generationsUsed: used });
-  }
-
-  const next = await incrementFreeGenerations(customer);
-  return NextResponse.json({
-    allowed: true,
-    licensed: false,
-    generationsUsed: next,
-    generationsRemaining: FREE_GENERATION_LIMIT - next,
-  });
 }

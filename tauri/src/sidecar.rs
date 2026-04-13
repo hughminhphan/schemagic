@@ -88,13 +88,17 @@ fn resolve_sidecar_path(app: &AppHandle) -> Result<std::path::PathBuf, Box<dyn s
 }
 
 /// Start the Python sidecar and wait for it to report its port.
-pub fn start_sidecar(app: &AppHandle) -> Result<SidecarState, Box<dyn std::error::Error>> {
+pub fn start_sidecar(
+    app: &AppHandle,
+    machine_id: &str,
+) -> Result<SidecarState, Box<dyn std::error::Error>> {
     let sidecar_path = resolve_sidecar_path(app)?;
 
     let mut child = Command::new(&sidecar_path)
         .env("SCHEMAGIC_SIDECAR", "1")
         .env("SCHEMAGIC_PORT", "0")
         .env("SCHEMAGIC_STANDALONE", "1")
+        .env("SCHEMAGIC_MACHINE_ID", machine_id)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()

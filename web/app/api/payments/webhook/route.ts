@@ -23,42 +23,39 @@ export async function POST(req: NextRequest) {
 
   const stripe = getStripe();
 
-  switch (event.type) {
-    case "customer.subscription.deleted": {
-      // Clear machine_id so user can reactivate on a new device if they resubscribe
-      const sub = event.data.object as { customer: string };
-      await stripe.customers.update(sub.customer as string, {
-        metadata: { machine_id: "" },
-      });
-      break;
-    }
-    case "invoice.payment_failed": {
-      // Flag the customer so the validate endpoint shortens JWT expiry
-      const invoice = event.data.object as { customer: string };
-      const customer = await stripe.customers.retrieve(invoice.customer as string);
-      if (!customer.deleted) {
-        await stripe.customers.update(invoice.customer as string, {
-          metadata: { ...customer.metadata, payment_failed: "true" },
+  try {
+    switch (event.type) {
+      case "customer.subscription.deleted": {
+        const sub = event.data.object as { customer: string };
+        await stripe.customers.update(sub.customer as string, {
+          metadata: { machine_id: "" },
         });
+        break;
       }
-      break;
-    }
-    case "invoice.payment_succeeded": {
-      // Clear payment_failed flag on successful payment
-      const invoice = event.data.object as { customer: string };
-      const customer = await stripe.customers.retrieve(invoice.customer as string);
-      if (!customer.deleted) {
-        const meta = { ...customer.metadata };
-        delete meta.payment_failed;
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as { customer: string };
         await stripe.customers.update(invoice.customer as string, {
-          metadata: meta,
+          metadata: { payment_failed: "true" },
         });
+        break;
       }
-      break;
+      case "invoice.payment_succeeded": {
+        // Stripe metadata merges key-by-key; empty string deletes the key.
+        const invoice = event.data.object as { customer: string };
+        await stripe.customers.update(invoice.customer as string, {
+          metadata: { payment_failed: "" },
+        });
+        break;
+      }
+      case "customer.subscription.updated":
+        break;
     }
-    case "customer.subscription.updated":
-      // Log only for now
-      break;
+  } catch (err) {
+    // Swallow handler errors: returning non-2xx makes Stripe retry for 3 days,
+    // which floods logs and re-fires idempotent side effects. All handled event
+    // types are themselves idempotent (set-flag / clear-flag writes), so safe
+    // to drop on the floor after logging.
+    console.error("[webhook]", event.type, event.id, err);
   }
 
   return NextResponse.json({ received: true });

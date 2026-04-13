@@ -20,7 +20,9 @@ from server.job_store import JobStore
 from engine.core.pipeline import Pipeline
 from engine.core.models import PinInfo, PackageInfo
 
-from server.license import validate_license_token
+import time
+
+from server.license import LOCAL_MACHINE_ID, validate_license_token
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +33,41 @@ def _get_jobs(request: Request) -> JobStore:
     return request.app.state.jobs
 
 
+# Per-process store of consumed free-tier generation_ids -> exp timestamp.
+# Free tokens are single-use with a 5-minute lifetime; tracking here prevents
+# one token being replayed for multiple generations. In-memory is sufficient
+# because the sidecar is single-user, single-process.
+_USED_GEN_IDS: dict[str, float] = {}
+
+
+def _purge_expired_gen_ids(now: float) -> None:
+    if len(_USED_GEN_IDS) > 1000:
+        for gid in [g for g, exp in _USED_GEN_IDS.items() if exp <= now]:
+            _USED_GEN_IDS.pop(gid, None)
+
+
 async def require_license(x_license_token: str = Header(...)):
     """Validate the X-License-Token header on billable endpoints."""
     try:
         claims = validate_license_token(x_license_token)
-        return claims
     except Exception:
         raise HTTPException(status_code=403, detail="Invalid or expired license token")
+
+    if LOCAL_MACHINE_ID and claims.get("machine_id") != LOCAL_MACHINE_ID:
+        raise HTTPException(status_code=403, detail="device_mismatch")
+
+    if claims.get("tier") == "free":
+        gen_id = claims.get("generation_id")
+        if not gen_id:
+            raise HTTPException(status_code=403, detail="missing generation_id")
+        now = time.time()
+        _purge_expired_gen_ids(now)
+        if gen_id in _USED_GEN_IDS:
+            raise HTTPException(status_code=403, detail="generation_id already used")
+        exp = float(claims.get("exp", now + 300))
+        _USED_GEN_IDS[gen_id] = exp
+
+    return claims
 
 
 def _datasheet_to_schema(ds) -> DatasheetSummarySchema:

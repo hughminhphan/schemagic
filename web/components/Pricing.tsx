@@ -8,7 +8,7 @@ export default function Pricing() {
   const [error, setError] = useState("");
 
   async function handleCheckout() {
-    const trimmed = email.trim();
+    const trimmed = email.trim().toLowerCase();
     if (!trimmed || !trimmed.includes("@")) {
       setError("Enter a valid email address.");
       return;

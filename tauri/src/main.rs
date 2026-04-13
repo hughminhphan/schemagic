@@ -132,15 +132,22 @@ fn get_api_port(state: tauri::State<'_, Mutex<sidecar::SidecarState>>) -> u16 {
     state.lock().unwrap().port
 }
 
-/// Tauri command: get or generate a stable machine ID
-#[tauri::command]
-fn get_machine_id() -> Result<String, String> {
+/// Get or generate a stable machine ID. Called from both the Tauri command
+/// exposed to the webview and from sidecar spawn so the sidecar can enforce
+/// the machine binding claim carried in JWTs.
+pub(crate) fn get_or_create_machine_id() -> Result<String, String> {
     let mut config = load_config();
     if config.machine_id.is_empty() {
         config.machine_id = uuid::Uuid::new_v4().to_string();
         save_config(&config)?;
     }
     Ok(config.machine_id)
+}
+
+/// Tauri command: get or generate a stable machine ID
+#[tauri::command]
+fn get_machine_id() -> Result<String, String> {
+    get_or_create_machine_id()
 }
 
 /// Tauri command: store a license token
@@ -248,8 +255,12 @@ fn main() {
         .setup(move |app| {
             let handle = app.handle().clone();
 
+            // Resolve the machine ID before spawning the sidecar so it can
+            // enforce the machine_id claim embedded in license JWTs.
+            let machine_id = get_or_create_machine_id().unwrap_or_default();
+
             // Start the Python sidecar
-            let sidecar_state = match sidecar::start_sidecar(&handle) {
+            let sidecar_state = match sidecar::start_sidecar(&handle, &machine_id) {
                 Ok(state) => state,
                 Err(e) => {
                     eprintln!("Failed to start sidecar: {}", e);

@@ -4,6 +4,7 @@ The public key is embedded at build time. Only the Vercel API holds
 the private key, so tokens cannot be forged locally.
 """
 
+import os
 import jwt
 
 PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
@@ -15,6 +16,12 @@ rYqBK2bz2+1crTr4VarssaF1o/CGY2bFnSycJmJ1QNezd0QVHjjlFUd27nLJcorB
 98CWhLs8lhuyxuEO58bC+l5Mu/0rbUK3XTY/LBN8lHd8aO8de1Z2gPyyUrLrVjgk
 aQIDAQAB
 -----END PUBLIC KEY-----"""
+
+
+# Tauri passes the stable per-install UUID via SCHEMAGIC_MACHINE_ID at spawn.
+# Empty when the sidecar runs outside Tauri (webapp demo / pytest); in that
+# mode the machine_id check in require_license is skipped.
+LOCAL_MACHINE_ID = os.environ.get("SCHEMAGIC_MACHINE_ID", "")
 
 
 def validate_license_token(token: str) -> dict:
