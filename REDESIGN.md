@@ -104,31 +104,23 @@ Each phase = one Claude pass. Don't start Phase N+1 until N is verified in the T
 - **Phase 3 — Route scaffolding.** ✅ Done (2026-04-13). See section 7 below for scaffolded routes.
 - **Phase 4 — Wizard screens** (Idle → Running → Package-Select → Pin-Review → Error). ✅ Done (2026-04-13). All 4 wizard routes wired to the real pipeline. `web/app/wizard/layout.tsx` mounts `WizardProvider` at the segment level so routes share reducer state. `/wizard/running` runs `/api/run` + SSE on mount and auto-navigates on `COMPLETE`. Zero-pin `COMPLETE` is intercepted and dispatched as `ERROR` (not a custom empty-state page). Error view renders the full message in an accent-bordered card below the scrollable `TerminalBlock`. Auto-minimise uses `useRef` (not `useState`) to avoid the effect-cleanup cancelling the 1.5s timer. Old components (`PartInput`, `StatusStream`, `PackageSelectPanel`, `PinReviewVisual`, `DownloadPanel`) now orphaned — Phase 6 cleanup. Tauri minimise call uses `import("@tauri-apps/api/window").then(m => m.getCurrentWindow().minimize())`.
   - **Known build quirk on this machine**: `./scripts/build-and-install.sh` passes Step 3a (bundling `.app`) but fails Step 3b (DMG) with `hdiutil: create failed - image not recognised`. The install step is gated on the DMG succeeding. Workaround: `trash /Applications/scheMAGIC.app && cp -R tauri/target/release/bundle/macos/scheMAGIC.app /Applications/`. The script should be patched to skip DMG when installing locally (optional cleanup).
-- **Phase 5 — Auth + Settings.** Two sub-phases. **Decision (2026-04-13): use deep-link (`schemagic://auth?token=...`), not httpOnly cookies** — the Tauri shell ships as `STATIC_EXPORT=1` with no API routes, so cookies set on `schemagic.design` don't exist inside the Tauri webview. Deep link hands the identity JWT back into the app. Matches the REDESIGN "no DB, sign with `AUTH_SECRET`" constraint.
-  - **5a — Magic-link backend + deep link plumbing.**
-    1. **Rust / Tauri side** (`tauri/`):
-       - Add `tauri-plugin-deep-link = "2"` to `Cargo.toml`.
-       - Register `.plugin(tauri_plugin_deep_link::init())` in `main.rs`.
-       - In `tauri.conf.json` `bundle.macOS`, add `"deepLinkAssociations": ["schemagic"]` (or the v2 equivalent — verify against plugin docs). For Windows, the plugin's NSIS fragment handles registry.
-       - Capability file: add `deep-link:default` or specific permissions.
-       - Rust handler: on `on_deep_link` event, parse `token` from URL, persist to `~/.schemagic/config.json` as `identity_token`, emit `deep-link-auth` event to webview.
-       - Handle single-instance gracefully (existing app should come forward on link click).
-    2. **Next.js / Vercel side** (`web/app/api/`):
-       - `POST /api/auth/request` — body `{ email }`. Sign JWT `{ email, exp: now+15min, typ: "request" }` with `AUTH_SECRET`. Send Resend email containing `https://schemagic.design/auth/verify?token=<jwt>`. Return `{ ok: true }`.
-       - `GET /auth/verify` (page, not API) — reads `?token=` query, validates with `AUTH_SECRET`, rejects expired. On success, sign a longer-lived identity JWT `{ email, exp: now+30d, typ: "identity" }` and 302 to `schemagic://auth?token=<identity_jwt>`. Render a "You can close this tab" page as fallback if the scheme handler didn't fire.
-       - `POST /api/auth/logout` — no-op server-side (stateless JWT). Client clears `identity_token` from Tauri config.
-       - Install `resend` npm package. Add `RESEND_API_KEY` + `AUTH_SECRET` to Vercel env.
-    3. **Web shell** (`web/hooks/useLicense.ts` + `web/components/app/LicenseContext.tsx`):
-       - Replace the current `email` identifier with an `identity_token` JWT stored in Tauri config.
-       - On mount: read `identity_token` from `read_config`. If present, decode (client-side, trust the sidecar to re-validate on each license call) to get `email`. Continue the existing `/api/license/validate` flow.
-       - Listen for `deep-link-auth` Tauri event; when received, write the incoming token to config and refresh license state.
-       - `clearEmail` becomes `signOut` — clears `identity_token`.
-    4. **Config schema** (`~/.schemagic/config.json`):
-       - Add `identity_token: string`. Existing `email` field becomes derived (or keep for backwards compat during transition).
-  - **5b — Auth + Settings UI.** Build against the already-scaffolded route files in `web/app/`:
-    - `/auth/email` — form: email input → `POST /api/auth/request` → "check your inbox" confirmation card. Keep current `setEmail` fallback path gated behind `NODE_ENV !== "production"` for dev, or delete once 5a is verified.
-    - `/auth/paywall` — already wired to `requestCheckout` + `refreshLicense`. Phase 5b just polishes copy + visuals against Figma node `78:4`.
-    - `/settings` — already has Tabs (Account / Billing / Preferences). Billing wires to `requestPortal()` (done). Account should show email + sign-out button. Preferences stubs remain as TODOs per section 5.
+- **Phase 5 — Auth + Settings.** Two sub-phases. **Decision (2026-04-13): use deep-link (`schemagic://auth?token=...`), not httpOnly cookies** — the Tauri shell ships as `STATIC_EXPORT=1` with no API routes, so cookies set on `schemagic.design` don't exist inside the Tauri webview. Deep link hands the identity JWT back into the app.
+  - **5a — Magic-link backend + deep link plumbing.** ✅ Done (2026-04-13, verified end-to-end on prod). Commit `cb2cf60`.
+    - Rust: `tauri-plugin-deep-link = "2"` registered in `tauri/Cargo.toml` + `main.rs`. `tauri.conf.json` has `plugins.deep-link.desktop.schemes: ["schemagic"]`. Capability `deep-link:default`. `on_open_url` handler parses `schemagic://auth?token=...`, writes to `AppConfig.identity_token`, emits `deep-link-auth` event, foregrounds window.
+    - Web API: `web/app/api/auth/request/route.ts` signs 15-min HS256 request JWT and sends Resend email. `web/app/auth/verify/page.tsx` (server component, `force-dynamic`) validates request JWT, signs 30-day identity JWT, renders HTML with meta-refresh + JS redirect to `schemagic://auth?token=<identity>`. `web/app/api/auth/logout/route.ts` is a stateless no-op. All backed by `web/lib/auth.ts` (`signRequestToken`/`verifyRequestToken`/`signIdentityToken`/`verifyIdentityToken`, HS256 via `AUTH_SECRET`).
+    - `useLicense.ts` reads `identity_token` on mount, client-side base64-decodes to email, runs existing `/api/license/validate`. Listens for `deep-link-auth` Tauri event to refresh. Exposes `requestMagicLink(email)`. Legacy `setEmail` kept for dev path (NODE_ENV gate deferred to 5b). `clearEmail` clears `identity_token`.
+    - `scripts/build-and-install.sh` excludes `web/app/api` and `web/app/auth/verify` from Tauri static export via an `EXIT` trap that self-restores on failed builds.
+    - **Infra state (don't reprovision):** Resend domain `schemagic.design` is verified (DKIM + SPF + MX via Namecheap, Mail Settings switched to Custom MX). Vercel prod has `AUTH_SECRET`, `RESEND_API_KEY`, `AUTH_FROM_ADDRESS` set across Production/Preview/Development. Sender: `scheMAGIC <auth@schemagic.design>`. API key lives at `pass show schemagic-prod/resend-api-key`.
+  - **5b — Auth + Settings UI.** Everything below is UI-only: no Rust, no backend, no env work. Run the full `./scripts/build-and-install.sh` at the end to regression-test in the Tauri app.
+    1. `web/app/auth/email/page.tsx` — replace the direct `license.setEmail(trimmed)` + router push with the magic-link pattern. Two render states managed via `useState<'form' | 'sent'>`:
+       - `form`: email input (keep the existing `Input`/`Button` + error handling) → on submit, `await license.requestMagicLink(trimmed)` → switch to `sent`.
+       - `sent`: confirmation card (TerminalLine `auth/email` + headline "Check your inbox" + body "We sent a sign-in link to `<email>`. It expires in 15 minutes.") plus a secondary "Send another link" button that goes back to `form`.
+       - Keep the existing `useEffect` that redirects to `/wizard/idle` when `license.email && license.tier` — the deep-link listener in `useLicense` will flip these once the user clicks through, so AuthGate handles the rest.
+       - Dev-only escape hatch: if `process.env.NODE_ENV !== "production"`, also render a small "Dev sign-in" link below the form that calls the legacy `license.setEmail(trimmed)` path. No escape hatch in prod builds.
+    2. `web/app/auth/paywall/page.tsx` — already wired to `requestCheckout` + `refreshLicense`. Polish copy + visuals against Figma node `78:4` only (pull annotations via `mcp__figma__get_design_context`). Don't touch logic.
+    3. `web/app/settings/page.tsx` — Account tab currently calls `license.clearEmail` for sign-out; this already nukes `identity_token`, so it works. Audit copy, confirm email renders, leave Preferences stubs.
+    4. `web/components/app/LicenseContext.tsx` + `web/hooks/useLicense.ts` — no API changes needed for 5b. `requestMagicLink(email: string) => Promise<void>` is already in the interface.
+    5. Verify: `./scripts/build-and-install.sh`, then run the magic-link flow (the one proven in 5a). Confirm the app stays on `/auth/email` showing the "check your inbox" card until the deep link fires, then jumps straight to `/wizard/idle` without another click.
 - **Phase 6 — Cleanup.** Delete `/app` catch-all, delete `/activate` if folded, remove orphaned components, regression-test the full flow in the Tauri build.
 
 ---

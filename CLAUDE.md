@@ -226,10 +226,13 @@ Stripe is the database. No external DB. Customer metadata stores: `free_generati
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - pk_test_... or pk_live_...
 - `LICENSE_PRIVATE_KEY` - RS256 private key for JWT signing
 - `LICENSE_PUBLIC_KEY` - RS256 public key for JWT verification
+- `AUTH_SECRET` - HS256 key for magic-link request + identity JWTs (Phase 5a)
+- `RESEND_API_KEY` - Resend API key for magic-link email. Mirrored to `pass show schemagic-prod/resend-api-key`.
+- `AUTH_FROM_ADDRESS` - Sender line, e.g. `scheMAGIC <auth@schemagic.design>`. Domain verified in Resend via Namecheap DNS (Mail Settings: Custom MX).
 
 ### User config additions
 
-`~/.schemagic/config.json` includes: `email`, `license_status`, `last_check`, `machine_id` (UUID).
+`~/.schemagic/config.json` includes: `email`, `identity_token` (30-day HS256 JWT from magic-link flow), `license_status`, `last_check`, `machine_id` (UUID).
 
 ## Environment variables
 
